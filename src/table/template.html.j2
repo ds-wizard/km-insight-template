@@ -10,6 +10,7 @@
   <td>{{expert.email}}</td>
   <td></td>
   <td></td>
+  <td></td>
   <td>{{parent}}</td>
   <td>{{path}}</td>
 </tr>
@@ -48,6 +49,7 @@
     {%- endif -%}
   </td>
   <td></td>
+  <td></td>
   <td>{{parent}}</td>
   <td>{{path}}</td>
 </tr>
@@ -59,6 +61,7 @@
   <td>{{choice.uuid}}</td>
   <td class="cell-type">choice</td>
   <td>{{choice.label|e}}</td>
+  <td></td>
   <td></td>
   <td></td>
   <td></td>
@@ -76,6 +79,11 @@
   <td>{{answer.advice|markdown}}</td>
   <td></td>
   <td>{{answer.followUpUuids|length}}</td>
+  <td>
+  {%- if answer.metricMeasures|length > 0 -%}
+  Metrics: {% for m in answer.metricMeasures %}({{m.metricUuid}}:{{m.weight}}:{{m.measure}}){%- endfor -%}
+  {%- endif -%}
+  </td>
   <td>{{parent}}</td>
   <td>{{path}}</td>
 </tr>
@@ -114,6 +122,7 @@
   <td>{{question.text|markdown}}</td>
   <td>{{qtype}}</td>
   <td>{{followups}}</td>
+  <td>{%- if question.requiredPhaseUuid -%}Phase: {{question.requiredPhaseUuid}}{%- endif -%}</td>
   <td>{{parent}}</td>
   <td>{{path}}</td>
 </tr>
@@ -146,6 +155,7 @@
   <td>{{chapter.text|markdown}}</td>
   <td></td>
   <td>{{chapter.questionUuids|length}}</td>
+  <td></td>
   <td>{{pkg.id}}</td>
   <td>{{chapter.uuid}}</td>
 </tr>
@@ -220,6 +230,18 @@
       #km-table tr.expert:hover {
         background-color: #f8ff9d;
       }
+      #km-table tr.metric .cell-type {
+        color: #bf6f13;
+      }
+      #km-table tr.metric:hover {
+        background-color: #e6ad6c;
+      }
+      #km-table tr.phase .cell-type {
+        color: #9c0834;
+      }
+      #km-table tr.phase:hover {
+        background-color: #ab7686;
+      }
     </style>
   </head>
   <body>
@@ -232,6 +254,7 @@
           <th>Title</th>
           <th>Text</th>
           <th>Subtype</th>
+          <th>Extra</th>
           <th>Follow-ups</th>
           <th>Parent UUID</th>
           <th>Path</th>
@@ -241,6 +264,12 @@
 {%- for chapterUuid in km.chapterUuids -%}
 {{ renderChapter(km.entities.chapters[chapterUuid], loop.index) }}
 {%- endfor %}
+{%- for phaseUuid in km.phaseUuids -%}
+{{ renderPhase(km.entities.phases[phaseUuid], loop.index) }}
+{%- endfor -%}
+{%- for metricUuid in km.metricUuids -%}
+{{ renderMetric(km.entities.metrics[metricUuid]) }}
+{%- endfor -%}
       </tbody>
     </table>
   </body>

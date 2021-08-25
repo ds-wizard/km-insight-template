@@ -71,7 +71,14 @@
       {% if answer.advice and answer.advice|length > 0 %}
         <em>Advice:</em> {{ answer.advice|markdown }}
       {% endif %}
-      {# TODO: metrics? #}
+      {% if answer.metricMeasures|length > 0 %}
+        <em>Metrics:</em>
+        <ul>
+        {% for m in answer.metricMeasures -%}
+          <li>{{km.entities.metrics[m.metricUuid].title}} (<code>{{m.metricUuid}}</code>), weight: {{m.weight}}, measure: {{m.measure}}</li>
+        {% endfor -%}
+        </ul>
+      {% endif %}
 {%- if answer.followUpUuids|length > 0 %}
       <em>Followup questions:</em>
       <ol>
@@ -108,7 +115,10 @@
         {% set integration = km.entities.integrations[question.integrationUuid] %}
         <em>Integration:</em> {{integration.name|e}} (<code>{{question.integrationUuid}}</code>)<br/>
       {% endif %}
-      {# TODO: phase? #}
+      {% if question.requiredPhaseUuid %}
+        {% set phase = km.entities.phases[question.requiredPhaseUuid] %}
+        <em>Phase:</em> {{phase.title|e}} (<code>{{question.requiredPhaseUuid}}</code>)<br/>
+      {% endif %}
       {% if question.text and question.text|length > 0 %}
         {{ question.text|markdown }}
       {% endif %}
@@ -169,6 +179,20 @@
     {%- endfor %}
     </ol>
 {%- endmacro -%}
+{%- macro renderPhase(phase, humanIdentifier) -%}
+    <h3 class="phase" id="{{phase.uuid}}">{{humanIdentifier}}. {{phase.title|e}}</h3>
+    <em>Identifier:</em> {{humanIdentifier}} (<code>{{phase.uuid}}</code>)<br/>
+    {% if phase.description and phase.description|length > 0 %}
+      {{ phase.description|markdown }}
+    {% endif %}
+{%- endmacro -%}
+{%- macro renderMetric(metric) -%}
+    <h3 class="metric" id="{{metric.uuid}}">{{metric.abbreviation}}: {{metric.title|e}}</h3>
+    <em>Identifier:</em> {{metric.abbreviation}} (<code>{{metric.uuid}}</code>)<br/>
+    {% if metric.description and metric.description|length > 0 %}
+      {{ metric.description|markdown }}
+    {% endif %}
+{%- endmacro -%}
 <!DOCTYPE html>
 <html>
   <head>
@@ -212,7 +236,19 @@
       {{ renderIntegration(km.entities.integrations[integrationUuid]) }}
     {%- endfor %}
 
+    <h2>Phases</h2>
+
+    {%- for phaseUuid in km.phaseUuids -%}
+      {{ renderPhase(km.entities.phases[phaseUuid], loop.index) }}
+    {%- endfor -%}
+
+    <h2>Metrics</h2>
+
+    {%- for metricUuid in km.metricUuids -%}
+      {{ renderMetric(km.entities.metrics[metricUuid]) }}
+    {%- endfor -%}
+
     <hr />
-    <center>Generated from DSW using <code>dsw:km-insight:0.2.0</code> template</center>
+    <center>Generated from DSW using <code>dsw:km-insight:0.4.0</code> template</center>
   </body>
 </html>

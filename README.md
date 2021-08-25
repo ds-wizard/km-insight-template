@@ -4,6 +4,11 @@ Explore the KM content in many ways
 
 ## Changelog
 
+### 0.4.0
+
+- Update to metamodel v4
+- Support for metrics and phases
+
 ### 0.3.0
 
 - Support for references and experts in tables
