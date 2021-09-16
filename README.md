@@ -4,6 +4,10 @@ Explore the KM content in many ways
 
 ## Changelog
 
+### 0.4.1
+
+- Fix HTML table (missing macros)
+
 ### 0.4.0
 
 - Update to metamodel v4

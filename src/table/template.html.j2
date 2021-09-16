@@ -163,6 +163,34 @@
 {{ renderQuestion(km.entities.questions[questionUuid], chapter.uuid, chapter.uuid, humanIdentifier|roman ~ "." ~ loop.index) }}
 {%- endfor -%}
 {%- endmacro -%}
+{%- macro renderMetric(metric) %}
+<tr class="metric" id="{{metric.uuid}}">
+  <td>{{metric.abbreviation}}</td>
+  <td>{{metric.uuid}}</td>
+  <td class="cell-type">metric</td>
+  <td>{{metric.title|e}}</td>
+  <td>{% if metric.description %}{{metric.description|markdown}}{% endif %}</td>
+  <td></td>
+  <td></td>
+  <td></td>
+  <td>{{pkg.id}}</td>
+  <td></td>
+</tr>
+{%- endmacro -%}
+{%- macro renderPhase(phase, index) %}
+<tr class="phase" id="{{phase.uuid}}">
+  <td>phase-{{index}}</td>
+  <td>{{phase.uuid}}</td>
+  <td class="cell-type">phase</td>
+  <td>{{phase.title|e}}</td>
+  <td>{% if phase.description %}{{phase.description|markdown}}{% endif %}</td>
+  <td></td>
+  <td></td>
+  <td></td>
+  <td>{{pkg.id}}</td>
+  <td></td>
+</tr>
+{%- endmacro -%}
 <!DOCTYPE html>
 <html>
   <head>
