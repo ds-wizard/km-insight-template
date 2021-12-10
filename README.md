@@ -4,9 +4,13 @@ Explore the KM content in many ways
 
 ## Changelog
 
+### 0.5.0
+
+- Update to metamodel v6
+
 ### 0.4.2
 
-- Update template metamodel v5
+- Update to metamodel v5
 
 ### 0.4.1
 

@@ -8,7 +8,6 @@
     <li><em>ID:</em> {{integration.id}}</li>
     <li><em>Logo:</em> {% if integration.logo != "" %}<img style="max-height: 50px;" src="{{ integration.logo }}" alt="{{ integration.name }}" />{% endif %}</li>
     <li><em>Props:</em> {{integration.props|join(", ")}}</li>
-    <li><em>Item URL:</em> {{integration.itemUrl}}</li>
     <li><em>Request:</em>
       <ul>
         <li><em>Method:</em> {{integration.requestMethod}}</li>
@@ -19,9 +18,10 @@
     </li>
     <li><em>Response:</em>
       <ul>
+        <li><em>Item ID:</em> {{integration.responseItemId}}</li>
+        <li><em>Item Template:</em> {{integration.responseItemName}}</li>
+        <li><em>Item URL:</em> {{integration.responseItemUrl}}</li>
         <li><em>List field:</em> {{integration.responseListField}}</li>
-        <li><em>ID field:</em> {{integration.responseIdField}}</li>
-        <li><em>Name field:</em> {{integration.responseNameField}}</li>
       </ul>
     </li>
   </ul>
