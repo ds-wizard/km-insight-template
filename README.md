@@ -4,6 +4,14 @@ Explore the KM content in many ways
 
 ## Changelog
 
+### 1.0.0
+
+- update to use to_context_obj
+
+### 0.7.0
+
+- Update to metamodel v8
+
 ### 0.6.0
 
 - Update to metamodel v7

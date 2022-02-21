@@ -1,70 +1,69 @@
-{%- set km = ctx.knowledgeModel -%}
-{%- set pkg = ctx.package -%}
+{%- set dc = ctx|to_context_obj -%}
 {%- macro renderChoice(choice) %}
-    <outline text="[X] {{choice.label|e}}"></outline>
+  <outline text="[X] {{choice.label|e}}"></outline>
 {%- endmacro -%}
 {%- macro renderAnswer(answer) %}
-    <outline text="[A] {{answer.label|e}}">
-{%- if answer.advice %}
+  <outline text="[A] {{answer.label|e}}">
+    {%- if answer.advice %}
       <outline text="{{answer.advice|e}}"></outline>
-{%- endif %}
-{%- for questionUuid in answer.followUpUuids %}
-  {{ renderQuestion(km.entities.questions[questionUuid]) }}
-{%- endfor %}
-    </outline>
+    {%- endif %}
+    {%- for question in answer.followups %}
+      {{ renderQuestion(question) }}
+    {%- endfor %}
+  </outline>
 {%- endmacro -%}
 {%- macro renderQuestion(question) %}
-{%- set qtype = "string" %}
-{%- if question.questionType == "OptionsQuestion" %}
-{%- set qtype = "options" %}
-{%- elif question.questionType == "ListQuestion" %}
-{%- set qtype = "list" %}
-{%- elif question.questionType == "ValueQuestion" %}
-  {%- if question.valueType == "TextQuestionValueType" %}
-    {%- set qtype = "text" %}
-  {%- elif question.valueType == "DateQuestionValueType" %}
-    {%- set qtype = "date" %}
-  {%- elif question.valueType == "NumberQuestionValueType" %}
-    {%- set qtype = "number" %}
+  {%- set qtype = "string" %}
+  {%- if question is of_type("OptionsQuestion") %}
+    {%- set qtype = "options" %}
+  {%- elif question is of_type("ListQuestion") %}
+    {%- set qtype = "list" %}
+  {%- elif question is of_type("ValueQuestion") %}
+    {%- if question.value_type == "TextQuestionValueType" %}
+      {%- set qtype = "text" %}
+    {%- elif question.value_type == "DateQuestionValueType" %}
+      {%- set qtype = "date" %}
+    {%- elif question.value_type == "NumberQuestionValueType" %}
+      {%- set qtype = "number" %}
+    {%- endif %}
+  {%- elif question is of_type("IntegrationQuestion") %}
+    {%- set qtype = "integration" %}
+  {%- elif question is of_type("MultiChoiceQuestion") %}
+    {%- set qtype = "multichoice" %}
   {%- endif %}
-{%- elif question.questionType == "IntegrationQuestion" %}
-{%- set qtype = "integration" %}
-{%- elif question.questionType == "MultiChoiceQuestion" %}
-{%- set qtype = "multichoice" %}
-{%- endif %}
-    <outline text="[Q][{{qtype}}] {{question.title|e}}">
-{%- if question.questionType == "OptionsQuestion" %}
-{%- for answerUuid in question.answerUuids %}
-  {{ renderAnswer(km.entities.answers[answerUuid]) }}
-{%- endfor %}
-{%- elif question.questionType == "MultiChoiceQuestion" %}
-{%- for choiceUuid in question.choiceUuids %}
-  {{ renderChoice(km.entities.choices[choiceUuid]) }}
-{%- endfor %}
-{%- elif question.questionType == "ListQuestion" %}
-{%- for questionUuid in question.itemTemplateQuestionUuids %}
-  {{ renderQuestion(km.entities.questions[questionUuid]) }}
-{%- endfor %}
-{%- endif %}
-    </outline>
+  <outline text="[Q][{{qtype}}] {{question.title|e}}">
+    {%- if question is of_type("OptionsQuestion") %}
+      {%- for answer in question.answers %}
+        {{ renderAnswer(answer) }}
+      {%- endfor %}
+    {%- elif question is of_type("MultiChoiceQuestion") %}
+      {%- for choice in question.choices %}
+        {{ renderChoice(choice) }}
+      {%- endfor %}
+    {%- elif question is of_type("ListQuestion") %}
+      {%- for q in question.followups %}
+        {{ renderQuestion(q) }}
+      {%- endfor %}
+    {%- endif %}
+  </outline>
 {%- endmacro -%}
 {%- macro renderChapter(chapter) -%}
-    <outline text="{{chapter.title|e}}">
-{%- for questionUuid in chapter.questionUuids %}
-  {{ renderQuestion(km.entities.questions[questionUuid]) }}
-{%- endfor %}
-    </outline>
+  <outline text="{{chapter.title|e}}">
+    {%- for question in chapter.questions %}
+      {{ renderQuestion(question) }}
+    {%- endfor %}
+  </outline>
 {%- endmacro -%}
 <?xml version="1.0" encoding="UTF-8"?>
 <opml version="1.0">
   <head>
-    <title>{{pkg.name}}</title>
+    <title>{{dc.pkg.name}}</title>
   </head>
   <body>
-    <outline text="{{pkg.name|e}}">
-{%- for chapterUuid in km.chapterUuids %}
-{{ renderChapter(km.entities.chapters[chapterUuid]) }}
-{%- endfor %}
+    <outline text="{{dc.pkg.name|e}}">
+      {%- for chapter in dc.km.chapters %}
+        {{ renderChapter(chapter) }}
+      {%- endfor %}
     </outline>
   </body>
 </opml>

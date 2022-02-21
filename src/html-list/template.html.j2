@@ -1,5 +1,4 @@
-{%- set km = ctx.knowledgeModel -%}
-{%- set pkg = ctx.package -%}
+{%- set dc = ctx|to_context_obj -%}
 {%- macro renderIntegration(integration) -%}
   <h3>{{integration.name}}</h3>
 
@@ -10,245 +9,250 @@
     <li><em>Props:</em> {{integration.props|join(", ")}}</li>
     <li><em>Request:</em>
       <ul>
-        <li><em>Method:</em> {{integration.requestMethod}}</li>
-        <li><em>URL:</em> {{integration.requestMethod}}</li>
-        <li><em>Headers:</em> <pre>{{integration.requestHeaders|tojson(4)}}</pre></li>
-        <li><em>Body:</em> <pre>{{integration.requestBody}}</pre></li>
+        <li><em>Method:</em> {{integration.rq_method}}</li>
+        <li><em>URL:</em> {{integration.rq_url}}</li>
+        <li><em>Headers:</em> <pre>{{integration.rq_headers|tojson(4)}}</pre></li>
+        <li><em>Body:</em> <pre>{{integration.rq_body}}</pre></li>
       </ul>
     </li>
     <li><em>Response:</em>
       <ul>
-        <li><em>Item ID:</em> {{integration.responseItemId}}</li>
-        <li><em>Item Template:</em> {{integration.responseItemName}}</li>
-        <li><em>Item URL:</em> {{integration.responseItemUrl}}</li>
-        <li><em>List field:</em> {{integration.responseListField}}</li>
+        <li><em>Item ID:</em> {{integration.rs_item_id}}</li>
+        <li><em>Item Template:</em> {{integration.rs_item_template}}</li>
+        <li><em>Item URL:</em> {{integration.item_url}}</li>
+        <li><em>List field:</em> {{integration.rs_list_field}}</li>
       </ul>
     </li>
   </ul>
 {%- endmacro -%}
 {%- macro renderFullTag(tag) -%}
-    <li class="tag" id="{{tag.uuid}}">
-      {{tag.name|e}} (<code>{{tag.uuid}}</code>)<br/>
-      <em>Color:</em> {{tag.color}} (<span style="color: {{tag.color}};">{{tag.color}}</span>)<br/>
-      <em>Description:</em> {{tag.description|markdown}}
-    </li>
+  <li class="tag" id="{{tag.uuid}}">
+    {{tag.name|e}} (<code>{{tag.uuid}}</code>)<br/>
+    <em>Color:</em> {{tag.color}} (<span style="color: {{tag.color}};">{{tag.color}}</span>)<br/>
+    <em>Description:</em> {{tag.description|markdown}}
+  </li>
 {%- endmacro -%}
 {%- macro renderExpert(expert) %}
-    <li class="expert" id="{{expert.uuid}}">
-      {{expert.name|e}} <a href="mailto:{{expert.email}}">{{expert.email}}</a> (<code>{{expert.uuid}}</code>)
-    </li>
+  <li class="expert" id="{{expert.uuid}}">
+    {{expert.name|e}} <a href="mailto:{{expert.email}}">{{expert.email}}</a> (<code>{{expert.uuid}}</code>)
+  </li>
 {%- endmacro -%}
 {%- macro renderReference(reference) %}
-{%- if reference.referenceType == "URLReference" -%}
-  <li class="reference resource-page" id="{{reference.uuid}}">
-    <a href="{{ reference.url }}" target="_blank">{{reference.label}}</a> (<code>{{reference.uuid}}</code>)
-  </li>
-{%- elif reference.referenceType == "ResourcePageReference" -%}
-  <li class="reference resource-page" id="{{reference.uuid}}">
-    <a href="{{ (ctx.config.clientUrl ~ "/book-references/" ~ reference.shortUuid) }}" target="_blank">{{reference.shortUuid}}</a> (<code>{{reference.uuid}}</code>)
-  </li>
-{%- else -%}
-  <li class="reference cross-reference" id="{{reference.uuid}}">
-    {{reference.targetUuid}}</strong> (<code>{{reference.uuid}}</code>)
-  </li>
+  {%- if reference is of_type("URLReference") -%}
+    <li class="reference resource-page" id="{{reference.uuid}}">
+      <a href="{{ reference.url }}" target="_blank">{{reference.label}}</a> (<code>{{reference.uuid}}</code>)
+    </li>
+  {%- elif reference is of_type("ResourcePageReference") -%}
+    <li class="reference resource-page" id="{{reference.uuid}}">
+      <a href="{{ (dc.config.client_url ~ "/book-references/" ~ reference.short_uuid) }}" target="_blank">{{reference.short_uuid}}</a> (<code>{{reference.uuid}}</code>)
+    </li>
+  {%- else -%}
+    <li class="reference cross-reference" id="{{reference.uuid}}">
+      {{reference.target_uuid}}</strong> (<code>{{reference.uuid}}</code>)
+</li>
 {%- endif -%}
 {%- endmacro -%}
 {%- macro renderTag(tag) %}
-    <li class="tag" id="{{tag.uuid}}">
-      {{tag.name|e}} (<code>{{tag.uuid}}</code>)
-    </li>
+  <li class="tag" id="{{tag.uuid}}">
+    {{tag.name|e}} (<code>{{tag.uuid}}</code>)
+  </li>
 {%- endmacro -%}
 {%- macro renderChoice(choice, humanIdentifier) %}
-    <li class="choice" id="{{choice.uuid}}">
-      <strong>{{choice.label|e}}</strong><br/>
-      <em>Identifier:</em> {{humanIdentifier}} (<code>{{choice.uuid}}</code>)<br/>
-    </li>
+  <li class="choice" id="{{choice.uuid}}">
+    <strong>{{choice.label|e}}</strong><br/>
+    <em>Identifier:</em> {{humanIdentifier}} (<code>{{choice.uuid}}</code>)<br/>
+  </li>
 {%- endmacro -%}
 {%- macro renderAnswer(answer, humanIdentifier) %}
-    <li class="answer" id="{{answer.uuid}}">
-      <strong>{{answer.label|e}}</strong><br/>
-      <em>Identifier:</em> {{humanIdentifier}} (<code>{{answer.uuid}}</code>)<br/>
-      {% if answer.advice and answer.advice|length > 0 %}
-        <em>Advice:</em> {{ answer.advice|markdown }}
-      {% endif %}
-      {% if answer.metricMeasures|length > 0 %}
-        <em>Metrics:</em>
-        <ul>
-        {% for m in answer.metricMeasures -%}
-          <li>{{km.entities.metrics[m.metricUuid].title}} (<code>{{m.metricUuid}}</code>), weight: {{m.weight}}, measure: {{m.measure}}</li>
+  <li class="answer" id="{{answer.uuid}}">
+    <strong>{{answer.label|e}}</strong><br/>
+    <em>Identifier:</em> {{humanIdentifier}} (<code>{{answer.uuid}}</code>)<br/>
+    {% if answer.advice and answer.advice|length > 0 %}
+      <em>Advice:</em> {{ answer.advice|markdown }}
+    {% endif %}
+    {% if answer.metric_measures|length > 0 %}
+      <em>Metrics:</em>
+      <ul>
+        {% for m in answer.metric_measures -%}
+          <li>{{m.metric.title}} (<code>{{m.metric.uuid}}</code>), weight: {{m.weight}}, measure: {{m.measure}}</li>
         {% endfor -%}
-        </ul>
-      {% endif %}
-{%- if answer.followUpUuids|length > 0 %}
+      </ul>
+    {% endif %}
+    {%- if answer.followups|length > 0 %}
       <em>Followup questions:</em>
       <ol>
-{%- for questionUuid in answer.followUpUuids %}
-  {{ renderQuestion(km.entities.questions[questionUuid], humanIdentifier ~ "." ~ loop.index) }}
-{%- endfor %}
+        {%- for question in answer.followups %}
+          {{ renderQuestion(question, humanIdentifier ~ "." ~ loop.index) }}
+        {%- endfor %}
       </ol>
-{% endif %}
-    </li>
+    {% endif %}
+  </li>
 {%- endmacro -%}
 {%- macro renderQuestion(question, humanIdentifier) %}
-{%- set qtype = "value (string)" %}
-{%- if question.questionType == "OptionsQuestion" %}
-{%- set qtype = "options" %}
-{%- elif question.questionType == "ListQuestion" %}
-{%- set qtype = "list" %}
-{%- elif question.questionType == "ValueQuestion" %}
-  {%- if question.valueType == "TextQuestionValueType" %}
-    {%- set qtype = "value (text)" %}
-  {%- elif question.valueType == "DateQuestionValueType" %}
-    {%- set qtype = "value (date)" %}
-  {%- elif question.valueType == "NumberQuestionValueType" %}
-    {%- set qtype = "value (number)" %}
+  {%- set qtype = "value (string)" %}
+  {%- if question is of_type("OptionsQuestion") %}
+    {%- set qtype = "options" %}
+  {%- elif question is of_type("ListQuestion") %}
+    {%- set qtype = "list" %}
+  {%- elif question is of_type("ValueQuestion") %}
+    {%- if question.value_type == "TextQuestionValueType" %}
+      {%- set qtype = "value (text)" %}
+    {%- elif question.value_type == "DateQuestionValueType" %}
+      {%- set qtype = "value (date)" %}
+    {%- elif question.value_type == "NumberQuestionValueType" %}
+      {%- set qtype = "value (number)" %}
+    {%- endif %}
+  {%- elif question is of_type("IntegrationQuestion") %}
+    {%- set qtype = "integration" %}
+  {%- elif question is of_type("MultiChoiceQuestion") %}
+    {%- set qtype = "multichoice" %}
   {%- endif %}
-{%- elif question.questionType == "IntegrationQuestion" %}
-{%- set qtype = "integration" %}
-{%- elif question.questionType == "MultiChoiceQuestion" %}
-{%- set qtype = "multichoice" %}
-{%- endif %}
-    <li class="question" id="{{question.uuid}}">
-      <strong>{{question.title|e}}</strong> [{{qtype}}]<br/>
-      <em>Identifier:</em> {{humanIdentifier}} (<code>{{question.uuid}}</code>)<br/>
-      {% if qtype == "integration" %}
-        {% set integration = km.entities.integrations[question.integrationUuid] %}
-        <em>Integration:</em> {{integration.name|e}} (<code>{{question.integrationUuid}}</code>)<br/>
-      {% endif %}
-      {% if question.requiredPhaseUuid %}
-        {% set phase = km.entities.phases[question.requiredPhaseUuid] %}
-        <em>Phase:</em> {{phase.title|e}} (<code>{{question.requiredPhaseUuid}}</code>)<br/>
-      {% endif %}
-      {% if question.text and question.text|length > 0 %}
-        {{ question.text|markdown }}
-      {% endif %}
+  <li class="question" id="{{question.uuid}}">
+    <strong>{{question.title|e}}</strong> [{{qtype}}]<br/>
+    <em>Identifier:</em> {{humanIdentifier}} (<code>{{question.uuid}}</code>)<br/>
+    {% if qtype == "integration" %}
+      {% set integration = question.integration %}
+      <em>Integration:</em> {{integration.name|e}} (<code>{{question.integration_uuid}}</code>)<br/>
+    {% endif %}
+    {% if question.required_phase %}
+      {% set phase = question.required_phase %}
+      <em>Phase:</em> {{phase.title|e}} (<code>{{phase.uuid}}</code>)<br/>
+    {% endif %}
+    {% if question.text and question.text|length > 0 %}
+      {{ question.text|markdown }}
+    {% endif %}
 
-<em>Tags [{{question.tagUuids|length}}]:</em>
-<ol>
-{%- for tagUuid in question.tagUuids %}
-  {{ renderTag(km.entities.tags[tagUuid]) }}
-{%- endfor -%}
-</ol>
-<em>References [{{question.referenceUuids|length}}]:</em>
-<ol>
-{%- for referenceUuid in question.referenceUuids %}
-  {{ renderReference(km.entities.references[referenceUuid]) }}
-{%- endfor -%}
-</ol>
-<em>Experts [{{question.expertUuids|length}}]:</em>
-<ol>
-{%- for expertUuid in question.expertUuids %}
-  {{ renderExpert(km.entities.experts[expertUuid]) }}
-{%- endfor -%}
-</ol>
+    <em>Tags [{{question.tags|length}}]:</em>
+    <ol>
+      {%- for tag in question.tags %}
+        {{ renderTag(tag) }}
+      {%- endfor -%}
+    </ol>
+    <em>References [{{question.references|length}}]:</em>
+    <ol>
+      {%- for reference in question.references %}
+        {{ renderReference(reference) }}
+      {%- endfor -%}
+    </ol>
+    <em>Experts [{{question.experts|length}}]:</em>
+    <ol>
+      {%- for expert in question.experts %}
+        {{ renderExpert(expert) }}
+      {%- endfor -%}
+    </ol>
 
-{%- if question.questionType == "OptionsQuestion" %}
-      <em>Answer options [{{question.answerUuids|length}}]:</em>
-<ol>
-{%- for answerUuid in question.answerUuids %}
-  {{ renderAnswer(km.entities.answers[answerUuid], humanIdentifier ~ "." ~ loop.index|of_alphabet) }}
-{%- endfor %}
-</ol>
-{%- elif question.questionType == "MultiChoiceQuestion" %}
-      <em>Answer choices [{{question.choiceUuids|length}}]:</em>
-<ol>
-{%- for choiceUuid in question.choiceUuids %}
-  {{ renderChoice(km.entities.choices[choiceUuid], humanIdentifier ~ "." ~ loop.index|of_alphabet) }}
-{%- endfor %}
-</ol>
-{%- elif question.questionType == "ListQuestion" %}
-      <em>Followup questions (per item) [{{question.itemTemplateQuestionUuids|length}}]:</em>
-<ol>
-{%- for questionUuid in question.itemTemplateQuestionUuids %}
-  {{ renderQuestion(km.entities.questions[questionUuid], humanIdentifier ~ "._." ~ loop.index) }}
-{%- endfor %}
-</ol>
-{%- endif %}
-    </li>
+    {%- if question is of_type("OptionsQuestion") %}
+      <em>Answer options [{{question.answers|length}}]:</em>
+      <ol>
+        {%- for answer in question.answers %}
+          {{ renderAnswer(answer, humanIdentifier ~ "." ~ loop.index|of_alphabet) }}
+        {%- endfor %}
+      </ol>
+    {%- elif question is of_type("MultiChoiceQuestion") %}
+      <em>Answer choices [{{question.choices|length}}]:</em>
+      <ol>
+        {%- for choice in question.choices %}
+          {{ renderChoice(choice, humanIdentifier ~ "." ~ loop.index|of_alphabet) }}
+        {%- endfor %} 
+      </ol>
+    {%- elif question is of_type("ListQuestion") %}
+      <em>Followup questions (per item) [{{question.followups|length}}]:</em>
+      <ol>
+        {%- for q in question.followups %}
+          {{ renderQuestion(q, humanIdentifier ~ "._." ~ loop.index) }}
+        {%- endfor %}
+      </ol>
+    {%- endif %}
+  </li>
 {%- endmacro -%}
 {%- macro renderChapter(chapter, humanIdentifier) -%}
-    <h3 class="chapter" id="{{chapter.uuid}}">{{humanIdentifier|roman}}. {{chapter.title|e}}</h3>
-    <em>Identifier:</em> {{humanIdentifier|roman}} (<code>{{chapter.uuid}}</code>)<br/>
-    {% if chapter.text and chapter.text|length > 0 %}
-      {{ chapter.text|markdown }}
-    {% endif %}
-    <em>Questions [{{chapter.questionUuids|length}}]:</em>
-    <ol>
-    {%- for questionUuid in chapter.questionUuids %}
-      {{ renderQuestion(km.entities.questions[questionUuid], humanIdentifier|roman ~ "." ~ loop.index) }}
+  <h3 class="chapter" id="{{chapter.uuid}}">{{humanIdentifier|roman}}. {{chapter.title|e}}</h3>
+  <em>Identifier:</em> {{humanIdentifier|roman}} (<code>{{chapter.uuid}}</code>)<br/>
+  {% if chapter.text and chapter.text|length > 0 %}
+    {{ chapter.text|markdown }}
+  {% endif %}
+  <em>Questions [{{chapter.questions|length}}]:</em>
+  <ol>
+    {%- for question in chapter.questions %}
+      {{ renderQuestion(question, humanIdentifier|roman ~ "." ~ loop.index) }}
     {%- endfor %}
-    </ol>
+  </ol>
 {%- endmacro -%}
 {%- macro renderPhase(phase, humanIdentifier) -%}
-    <h3 class="phase" id="{{phase.uuid}}">{{humanIdentifier}}. {{phase.title|e}}</h3>
-    <em>Identifier:</em> {{humanIdentifier}} (<code>{{phase.uuid}}</code>)<br/>
-    {% if phase.description and phase.description|length > 0 %}
-      {{ phase.description|markdown }}
-    {% endif %}
+  <h3 class="phase" id="{{phase.uuid}}">{{humanIdentifier}}. {{phase.title|e}}</h3>
+  <em>Identifier:</em> {{humanIdentifier}} (<code>{{phase.uuid}}</code>)<br/>
+  {% if phase.description and phase.description|length > 0 %}
+    {{ phase.description|markdown }}
+  {% endif %}
+  {% if phase.annotations and phase.annotations|length > 0 %}
+    {{ phase.description|markdown }}
+  {% endif %}
 {%- endmacro -%}
 {%- macro renderMetric(metric) -%}
-    <h3 class="metric" id="{{metric.uuid}}">{{metric.abbreviation}}: {{metric.title|e}}</h3>
-    <em>Identifier:</em> {{metric.abbreviation}} (<code>{{metric.uuid}}</code>)<br/>
-    {% if metric.description and metric.description|length > 0 %}
-      {{ metric.description|markdown }}
-    {% endif %}
+  <h3 class="metric" id="{{metric.uuid}}">{{metric.abbreviation}}: {{metric.title|e}}</h3>
+  <em>Identifier:</em> {{metric.abbreviation}} (<code>{{metric.uuid}}</code>)<br/>
+  {% if metric.description and metric.description|length > 0 %}
+    {{ metric.description|markdown }}
+  {% endif %}
 {%- endmacro -%}
 <!DOCTYPE html>
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title>DSW KM: {{pkg.name|e}}</title>
+    <title>DSW KM: {{dc.pkg.name|e}}</title>
     <style>
       body {
-        font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+      font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
       }
       p {
-        margin: 0;
+      margin: 0;
       }
       li.question {
-        margin-bottom: 0.5em;
+      margin-bottom: 0.5em;
       }
     </style>
   </head>
   <body>
-    <h1>{{pkg.name|e}}</h1>
-    <em>Identifier:</em> <code>{{pkg.id}}</code><br/>
-    <em>Published:</em> {{pkg.createdAt|datetime_format("%d %b %Y %H:%M:%S")}}<br/>
-    <p class="description">{{pkg.description}}</p>
+    <h1>{{dc.pkg.name|e}}</h1>
+    <em>Identifier:</em> <code>{{dc.pkg.id}}</code><br/>
+    <em>Published:</em> {{dc.pkg.created_at|datetime_format("%d %b %Y %H:%M:%S")}}<br/>
+    <p class="description">{{dc.pkg.description}}</p>
 
     <h2>Chapters</h2>
     
-    {%- for chapterUuid in km.chapterUuids %}
-      {{ renderChapter(km.entities.chapters[chapterUuid], loop.index) }}
+    {%- for chapter in dc.km.chapters %}
+      {{ renderChapter(chapter, loop.index) }}
     {%- endfor %}
 
     <h2>Tags</h2>
 
     <ul>
-    {%- for tagUuid in km.tagUuids %}
-      {{ renderFullTag(km.entities.tags[tagUuid]) }}
-    {%- endfor %}
+      {%- for tag in dc.km.tags %}
+        {{ renderFullTag(tag) }}
+      {%- endfor %}
     </ul>
 
     <h2>Integrations</h2>
 
-    {%- for integrationUuid in km.integrationUuids %}
-      {{ renderIntegration(km.entities.integrations[integrationUuid]) }}
+    {%- for integration in dc.km.integrations %}
+      {{ renderIntegration(integration) }}
     {%- endfor %}
 
     <h2>Phases</h2>
 
-    {%- for phaseUuid in km.phaseUuids -%}
-      {{ renderPhase(km.entities.phases[phaseUuid], loop.index) }}
+    {%- for p in dc.km.phase_uuids -%}
+      {# dc.km.phases is empty for the time being: bug in context.py for KnowledgeModel #}
+      {% set phase = dc.km.e.phases[p] %}
+      {{ renderPhase(phase, loop.index) }}
     {%- endfor -%}
 
     <h2>Metrics</h2>
 
-    {%- for metricUuid in km.metricUuids -%}
-      {{ renderMetric(km.entities.metrics[metricUuid]) }}
+    {%- for metric in dc.km.metrics -%}
+      {{ renderMetric(metric) }}
     {%- endfor -%}
 
     <hr />
-    <center>Generated from DSW using <code>dsw:km-insight:0.4.0</code> template</center>
+    <center>Generated from DSW using <code>dsw:km-insight:1.0.0</code> template</center>
   </body>
 </html>
