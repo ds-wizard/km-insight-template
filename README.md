@@ -4,6 +4,10 @@ Explore the KM content in many ways
 
 ## Changelog
 
+### 0.7.0
+
+- Update to metamodel v8
+
 ### 0.6.0
 
 - Update to metamodel v7
