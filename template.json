@@ -1,11 +1,11 @@
 {
   "templateId": "collapsible-user-friendly-km-insight",
   "organizationId": "dsw",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "name": "Collapsible User Friendly KM Insight",
   "description": "Explore the KM content",
   "license": "Apache-2.0",
-  "metamodelVersion": 8,
+  "metamodelVersion": 9,
   "recommendedPackageId": null,
   "allowedPackages": [
     {
