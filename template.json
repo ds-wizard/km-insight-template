@@ -5,7 +5,7 @@
   "name": "User Friendly KM Insight",
   "description": "Explore the KM content",
   "license": "Apache-2.0",
-  "metamodelVersion": 8,
+  "metamodelVersion": 9,
   "recommendedPackageId": null,
   "allowedPackages": [
     {
