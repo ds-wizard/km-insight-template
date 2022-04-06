@@ -1,11 +1,11 @@
 {
   "templateId": "km-insight-rewritten",
   "organizationId": "dsw",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "name": "KM Insight Rewritten",
   "description": "Explore the KM content in many ways",
   "license": "Apache-2.0",
-  "metamodelVersion": 8,
+  "metamodelVersion": 9,
   "recommendedPackageId": null,
   "allowedPackages": [
     {
