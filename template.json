@@ -1,9 +1,9 @@
 {
-  "templateId": "collapsible-user-friendly-km-insight",
+  "templateId": "insight-template",
   "organizationId": "dsw",
-  "version": "1.1.0",
-  "name": "Collapsible User Friendly KM Insight",
-  "description": "Explore the KM content",
+  "version": "1.0.0",
+  "name": "Insight",
+  "description": "Explore the KM content and answers, if they exist",
   "license": "Apache-2.0",
   "metamodelVersion": 9,
   "recommendedPackageId": null,
@@ -17,7 +17,7 @@
   ],
   "formats": [
     {
-      "uuid": "a42add26-ad26-428d-8c49-d7dba26ccb44",
+      "uuid": "568c130b-259b-4e5e-874d-011cd153e018",
       "name": "HTML List",
       "shortName": "html",
       "icon": "fas fa-file",
@@ -41,5 +41,5 @@
       "src/**/*"
     ]
   },
-  "createdAt": "2022-03-31T16:36:37Z"
+  "createdAt": "2022-04-11T11:22:37Z"
 }

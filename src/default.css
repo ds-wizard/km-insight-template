@@ -79,3 +79,35 @@
 .tree details[open] > summary::before{
   content : '−';
 }
+
+
+
+.answer p, .no-answer p {
+  margin: 0;
+}
+
+.answer-block .answer span {
+  vertical-align: middle;
+}
+
+.answer-block .answer svg,
+.no-answer svg,
+.choice svg {
+  height: 20px;
+  width: 20px;
+  margin-right: 0.3rem;
+  vertical-align: middle;
+}
+
+.no-answer {
+  font-style: italic;
+}
+
+.no-answer span {
+  vertical-align: middle;
+}
+
+.question.required .no-answer {
+  color: #D0021B;
+}
+

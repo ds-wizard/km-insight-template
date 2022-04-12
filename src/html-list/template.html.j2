@@ -1,5 +1,5 @@
 {%- set dc = ctx|to_context_obj -%}
-{%- macro renderIntegration(integration) -%}
+{%- macro renderFullIntegration(integration) -%}
   <li>
     <details>
       <summary>
@@ -28,6 +28,32 @@
       </ul>
     </details>
   </li>
+{%- endmacro -%}
+{%- macro renderIntegration(integration, reply, path) -%}
+  {% if reply and reply.value %}
+    <div class="answer-block answer-simple" id="{{path}}" data-path="{{path}}" data-type="answer">
+      <p class="answer">
+        <svg aria-hidden="true" data-prefix="fas" data-icon="check" class="svg-inline--fa fa-check fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z"></path></svg>
+        {% if reply is of_type("StringReply") %}
+          <span>{{reply.value}}</span>
+        {% else %}
+          <span>{{reply.value}}</span>
+          {% if reply.is_integration %}
+            {# Integration #}
+            {% set integration = question.integration %}
+            <div class="integration-link">
+              {% if integration.logo %}<img src="{{ integration.logo }}" alt="{{ integration.name }}">{% endif %}
+              <a href="{{ integration.item(reply.item_id) }}">
+                {{ integration.item(reply.item_id) }}
+              </a>
+            </div>
+          {% endif %}
+        {% endif %}
+      </p>
+    </div>
+  {% else %}
+    <em>Integration:</em> {{integration.name|e}}<br/>
+  {% endif %}
 {%- endmacro -%}
 {%- macro renderFullTag(tag) -%}
   <li class="tag" id="{{tag.uuid}}">
@@ -70,42 +96,76 @@
     <strong> {{humanIdentifier}} {{choice.label|e}}</strong><br/>
   </li>
 {%- endmacro -%}
-{%- macro renderAnswer(answer, humanIdentifier) %}
-  <li class="answer" id="{{answer.uuid}}">
-    <details>
-      <summary>
-        <strong> {{humanIdentifier}} {{answer.label|e}}</strong><br/>
-      </summary>
-      {% if answer.advice and answer.advice|length > 0 %}
-        <em>Advice:</em> {{ answer.advice|markdown }}
-      {% endif %}
-      {% if answer.metric_measures|length > 0 %}
-      <em>Metrics:</em>
-      <ul>
-        {% for m in answer.metric_measures -%}
-          <li>{{m.metric.title}}, weight: {{m.weight}}, measure: {{m.measure}}</li>
-        {% endfor -%}
-      </ul>
-    {% endif %}
-    {%- if answer.followups|length > 0 %}
-      <ul style="list-style: none;">
-        {%- for question in answer.followups %}
-          {{ renderQuestion(question, loop.index ~ ".") }}
-        {%- endfor %}
-      </ul>
-    {% endif %}
-    </details>
-  </li>
+{%- macro renderAnswerOptions(question, reply, path) %}
+  <ul style="list-style: none;">
+    {%- for answer in question.answers %}
+      {% set humanIdentifier = (loop.index - 1) | of_alphabet ~ "." %}
+      <li class="answer" id="{{answer.uuid}}">
+        <details>
+          {% if reply and reply.value and reply is of_type("AnswerReply") %}
+            {% set index = question.answers.index(reply.answer) %}
+            {% if index == (loop.index - 1) %}
+              {% set path = path ~ "." ~ answer.uuid %}
+              <summary>
+                <div class="answer-block answer-option" id="{{path}}" data-path="{{path}}" data-uuid="{{answer.uuid}}" data-type="answer">
+                  <p class="answer">
+                    <svg aria-hidden="true" data-prefix="fas" data-icon="check" class="svg-inline--fa fa-check fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z"></path></svg>
+                    <span><strong> {{humanIdentifier}} {{answer.label|e}}</strong></span>
+                  </p>
+                </div>
+              </summary>
+            {% else %}
+              <summary>
+                <strong> {{humanIdentifier}} {{answer.label|e}}</strong><br/>
+              </summary>
+            {% endif %}
+          {% else %}
+            <summary>
+              <strong> {{humanIdentifier}} {{answer.label|e}}</strong><br/>
+            </summary>
+          {% endif %}
+          {% if answer.advice and answer.advice|length > 0 %}
+            <em>Advice:</em> {{ answer.advice|markdown }}
+          {% endif %}
+          {% if answer.metric_measures|length > 0 %}
+            <em>Metrics:</em>
+            <ul>
+              {% for m in answer.metric_measures -%}
+                <li>{{m.metric.title}}, weight: {{m.weight}}, measure: {{m.measure}}</li>
+              {% endfor -%}
+            </ul>
+          {% endif %}
+          {%- if answer.followups|length > 0 %}
+            <ul style="list-style: none;">
+              {%- for question in answer.followups %}
+                {{ renderQuestion(question, path, loop.index ~ ".") }}
+              {%- endfor %}
+            </ul>
+          {% endif %}
+        </details>
+      </li>
+    {%- endfor %}
+  </ul>
 {%- endmacro -%}
-{%- macro renderQuestion(question, humanIdentifier) %}
+{%- macro renderQuestion(question, path, humanIdentifier) %}
+  {% set reply = null %}
+  {% if path %}
+    {% set path = path ~ "." ~ question.uuid %}
+    {% set reply = question.replies.get(path) %}
+  {% endif %}
+  {% if reply %}
+    "reply in question"
+  {% else %}
+    "NO reply in question"
+  {% endif %}
+    
   <li class="question" id="{{question.uuid}}">
     <details>
       <summary>
         <strong>{{humanIdentifier}} {{question.title|e}}</strong>
       </summary>
       {% if question is of_type("IntegrationQuestion") %}
-        {% set integration = question.integration %}
-        <em>Integration:</em> {{integration.name|e}}<br/>
+        {{ renderIntegration(question.integration, reply, path) }}
       {% endif %}
       {% if question.required_phase %}
         {% set phase = question.required_phase %}
@@ -136,11 +196,7 @@
 
       {%- if question is of_type("OptionsQuestion") %}
         <em>Answer options:</em>
-        <ul style="list-style: none;">
-          {%- for answer in question.answers %}
-            {{ renderAnswer(answer, (loop.index - 1) |of_alphabet ~ ".") }}
-          {%- endfor %}
-        </ul>
+        {{ renderAnswerOptions(question, reply, path) }}
       {%- elif question is of_type("MultiChoiceQuestion") %}
         <em>Answer choices:</em>
         <ul style="list-style: none;">
@@ -150,9 +206,20 @@
         </ul>
       {%- elif question is of_type("ListQuestion") %}
         <ul style="list-style: none;">
-          {%- for q in question.followups %}
-            {{ renderQuestion(q, loop.index ~ ".") }}
-          {%- endfor %}
+          {% set itemPathPrefix = path ~ "." %}
+          {% if (reply and reply.value and reply is of_type("ItemListReply")) %}
+            "number of items " {{ reply.items | length }}
+            {% for i in reply.items %}
+              {% set itemPath = itemPathPrefix ~ i %}
+              {%- for q in question.followups %}
+                {{ renderQuestion(q, itemPath, loop.index ~ ".") }}
+              {%- endfor %}
+            {%- endfor %}
+          {% else %}
+            {%- for q in question.followups %}
+              {{ renderQuestion(q, null, loop.index ~ ".") }}
+            {%- endfor %}
+          {%- endif %}
         </ul>
       {%- endif %}
     </details>
@@ -170,7 +237,7 @@
       {% endif %}
       <ul style="list-style: none;">
         {%- for question in chapter.questions %}
-          {{ renderQuestion(question, loop.index ~ ".") }}
+          {{ renderQuestion(question, chapter.uuid, loop.index ~ ".") }}
         {%- endfor %}
       </ul>
     </details>
@@ -265,7 +332,7 @@
                 </summary>
                 <ul>
                   {%- for integration in dc.km.integrations %}
-                    {{ renderIntegration(integration) }}
+                    {{ renderFullIntegration(integration) }}
                   {%- endfor %}
                 </ul>
               </details>
