@@ -111,3 +111,15 @@
   color: #D0021B;
 }
 
+.choices-list {
+  list-style-type: none;
+}
+
+.choices-list .choice {
+  display: flex;
+  align-items: center;
+}
+
+.choices-list .choice.choice-unselected {
+  color: gray;
+}
