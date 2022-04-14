@@ -1,0 +1,399 @@
+{%- set dc = ctx|to_context_obj -%}
+{%- macro renderFullIntegration(integration) -%}
+  <li>
+    <details open>
+      <summary>
+        <strong>{{integration.name}}</strong>
+      </summary>
+      <ul>
+        <li><em>ID:</em> {{integration.id}}</li>
+        <li><em>Logo:</em> {% if integration.logo != "" %}<img style="max-height: 50px;" src="{{ integration.logo }}" alt="{{ integration.name }}" />{% endif %}</li>
+        <li><em>Props:</em> {{integration.props|join(", ")}}</li>
+        <li><em>Request:</em>
+          <ul>
+            <li><em>Method:</em> {{integration.rq_method}}</li>
+            <li><em>URL:</em> {{integration.rq_url}}</li>
+            <li><em>Headers:</em> <pre>{{integration.rq_headers|tojson(4)}}</pre></li>
+            <li><em>Body:</em> <pre>{{integration.rq_body}}</pre></li>
+          </ul>
+        </li>
+        <li><em>Response:</em>
+          <ul>
+            <li><em>Item ID:</em> {{integration.rs_item_id}}</li>
+            <li><em>Item Template:</em> {{integration.rs_item_template}}</li>
+            <li><em>Item URL:</em> {{integration.item_url}}</li>
+            <li><em>List field:</em> {{integration.rs_list_field}}</li>
+          </ul>
+        </li>
+      </ul>
+    </details>
+  </li>
+{%- endmacro -%}
+{%- macro renderFullTag(tag) -%}
+  <li class="tag" id="{{tag.uuid}}">
+    <details open>
+      <summary>
+        <strong>{{tag.name|e}}</strong>
+      </summary>
+    <em>Color:</em> {{tag.color}} (<span style="color: {{tag.color}};">{{tag.color}}</span>)<br/>
+    <em>Description:</em> {{tag.description|markdown}}
+    </details>
+  </li>
+{%- endmacro -%}
+{%- macro renderExpert(expert) %}
+  <li class="expert" id="{{expert.uuid}}">
+    {{expert.name|e}} <a href="mailto:{{expert.email}}">{{expert.email}}</a>
+  </li>
+{%- endmacro -%}
+{%- macro renderReference(reference) %}
+  {%- if reference is of_type("URLReference") -%}
+    <li class="reference resource-page" id="{{reference.uuid}}">
+      <a href="{{ reference.url }}" target="_blank">{{reference.label}}</a>
+    </li>
+  {%- elif reference is of_type("ResourcePageReference") -%}
+    <li class="reference resource-page" id="{{reference.uuid}}">
+      <a href="{{ (dc.config.client_url ~ "/book-references/" ~ reference.short_uuid) }}" target="_blank">{{reference.short_uuid}}</a>
+    </li>
+  {%- else -%}
+    <li class="reference cross-reference" id="{{reference.uuid}}">
+      {{reference.target_uuid}}</strong>
+</li>
+{%- endif -%}
+{%- endmacro -%}
+{%- macro renderTag(tag) %}
+  <li class="tag" id="{{tag.uuid}}">
+    {{tag.name|e}}
+  </li>
+{%- endmacro -%}
+{%- macro renderIntegration(integration, reply, path) -%}
+  {% if reply and reply.value %}
+    <div class="answer-block answer-simple" id="{{path}}" data-path="{{path}}" data-type="answer">
+      <p class="answer">
+        <svg aria-hidden="true" data-prefix="fas" data-icon="check" class="svg-inline--fa fa-check fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z"></path></svg>
+        {% if reply is of_type("StringReply") %}
+          <span>{{reply.value}}</span>
+        {% else %}
+          <span>{{reply.value}}</span>
+          {% if reply.is_integration %}
+            {# Integration #}
+            {% set integration = question.integration %}
+            <div class="integration-link">
+              {% if integration.logo %}<img src="{{ integration.logo }}" alt="{{ integration.name }}">{% endif %}
+              <a href="{{ integration.item(reply.item_id) }}">
+                {{ integration.item(reply.item_id) }}
+              </a>
+            </div>
+          {% endif %}
+        {% endif %}
+      </p>
+    </div>
+  {% else %}
+    <em>Integration:</em> {{integration.name|e}}<br/>
+  {% endif %}
+{%- endmacro -%}
+{%- macro renderAnswerValue(reply) -%}
+  <div class="answer-block answer-simple" data-type="answer">
+    <p class="answer">
+      <svg aria-hidden="true" data-prefix="fas" data-icon="check" class="svg-inline--fa fa-check fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z"></path></svg>
+      <span>{{reply.value}}</span>
+    </p>
+  </div>
+{%- endmacro -%}
+{%- macro renderChoiceList(question, reply, path) %}
+  <ul style="list-style: none;">
+    {% for choice in question.choices %}
+      {% set humanIdentifier = (loop.index - 1) | of_alphabet ~ "." %}
+      <li class="choice" id="{{choice.uuid}}">
+        {% if reply and reply.value and choice in reply.choices %}
+          <div class="choice choice-selected">
+            <svg aria-hidden="true" focusable="false" data-prefix="far" data-icon="check-square" class="svg-inline--fa fa-check-square fa-w-14" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="currentColor" d="M400 32H48C21.49 32 0 53.49 0 80v352c0 26.51 21.49 48 48 48h352c26.51 0 48-21.49 48-48V80c0-26.51-21.49-48-48-48zm0 400H48V80h352v352zm-35.864-241.724L191.547 361.48c-4.705 4.667-12.303 4.637-16.97-.068l-90.781-91.516c-4.667-4.705-4.637-12.303.069-16.971l22.719-22.536c4.705-4.667 12.303-4.637 16.97.069l59.792 60.277 141.352-140.216c4.705-4.667 12.303-4.637 16.97.068l22.536 22.718c4.667 4.706 4.637 12.304-.068 16.971z"></path></svg>
+            <strong> {{humanIdentifier}} {{choice.label|e}}</strong><br/>
+          </div>
+      </li>
+    {% elif reply and reply.value %}
+      <div class="choice choice-unselected">
+        <svg aria-hidden="true" focusable="false" data-prefix="far" data-icon="square" class="svg-inline--fa fa-square fa-w-14" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="currentColor" d="M400 32H48C21.5 32 0 53.5 0 80v352c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48V80c0-26.5-21.5-48-48-48zm-6 400H54c-3.3 0-6-2.7-6-6V86c0-3.3 2.7-6 6-6h340c3.3 0 6 2.7 6 6v340c0 3.3-2.7 6-6 6z"></path></svg>
+        <strong> {{humanIdentifier}} {{choice.label|e}}</strong><br/>
+      </div>
+    {% else %}
+      <strong> {{humanIdentifier}} {{choice.label|e}}</strong>
+    {% endif %}
+  {% endfor %}
+  </ul>
+{%- endmacro -%}
+{%- macro renderAnswerOptions(question, reply, path) %}
+  <ul style="list-style: none;">
+    {%- for answer in question.answers %}
+      {% set humanIdentifier = (loop.index - 1) | of_alphabet ~ "." %}
+      <li class="answer" id="{{answer.uuid}}">
+        <details open>
+          {% if reply and reply.value and reply is of_type("AnswerReply") %}
+            {% set index = question.answers.index(reply.answer) %}
+            {% if index == (loop.index - 1) %}
+              {% set path = path ~ "." ~ answer.uuid %}
+              <summary>
+                <div class="answer-block answer-option" id="{{path}}" data-path="{{path}}" data-uuid="{{answer.uuid}}" data-type="answer">
+                  <p class="answer">
+                    <svg aria-hidden="true" data-prefix="fas" data-icon="check" class="svg-inline--fa fa-check fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z"></path></svg>
+                    <span><strong> {{humanIdentifier}} {{answer.label|e}}</strong></span>
+                  </p>
+                </div>
+              </summary>
+            {% else %}
+              <summary>
+                <strong> {{humanIdentifier}} {{answer.label|e}}</strong><br/>
+              </summary>
+            {% endif %}
+          {% else %}
+            <summary>
+              <strong> {{humanIdentifier}} {{answer.label|e}}</strong><br/>
+            </summary>
+          {% endif %}
+          {% if answer.advice and answer.advice|length > 0 %}
+            <em>Advice:</em> {{ answer.advice|markdown }}
+          {% endif %}
+          {% if answer.metric_measures|length > 0 %}
+            <em>Metrics:</em>
+            <ul>
+              {% for m in answer.metric_measures -%}
+                <li>{{m.metric.title}}, weight: {{m.weight}}, measure: {{m.measure}}</li>
+              {% endfor -%}
+            </ul>
+          {% endif %}
+          {%- if answer.followups|length > 0 %}
+            <ul style="list-style: none;">
+              {%- for question in answer.followups %}
+                {{ renderQuestion(question, path, loop.index ~ ".") }}
+              {%- endfor %}
+            </ul>
+          {% endif %}
+        </details>
+      </li>
+    {%- endfor %}
+  </ul>
+{%- endmacro -%}
+{%- macro renderQuestion(question, path, humanIdentifier) %}
+  {% set reply = null %}
+  {% if path %}
+    {% set path = path ~ "." ~ question.uuid %}
+    {% set reply = question.replies.get(path) %}
+  {% endif %}
+    
+  <li class="question" id="{{question.uuid}}">
+    <details open>
+      <summary>
+        <strong>{{humanIdentifier}} {{question.title|e}}</strong>
+      </summary>
+      {% if question is of_type("IntegrationQuestion") %}
+        {{ renderIntegration(question.integration, reply, path) }}
+      {% endif %}
+      {% if question.required_phase %}
+        {% set phase = question.required_phase %}
+        <em>Phase:</em> <font face = "Verdana"> {{phase.title|e}} </font> <br/>
+      {% endif %}
+      {% if question.text and question.text|length > 0 %}
+        {{ question.text|markdown }}
+      {% endif %}
+
+      <em>Tags:</em>
+      <ul style="list-style: none;">
+        {%- for tag in question.tags %}
+          {{ renderTag(tag) }}
+        {%- endfor -%}
+      </ul>
+      <em>References:</em>
+      <ul style="list-style: none;">
+        {%- for reference in question.references %}
+          {{ renderReference(reference) }}
+        {%- endfor -%}
+      </ul>
+      <em>Experts:</em>
+      <ul style="list-style: none;">
+        {%- for expert in question.experts %}
+          {{ renderExpert(expert) }}
+        {%- endfor -%}
+      </ul>
+
+      {% if question is of_type("ValueQuestion")
+        and reply and reply.value and reply is of_type("StringReply") %}
+        {{ renderAnswerValue(reply) }}
+      {%- elif question is of_type("OptionsQuestion") %}
+        <em>Answer options:</em>
+        {{ renderAnswerOptions(question, reply, path) }}
+      {%- elif question is of_type("MultiChoiceQuestion") %}
+        <em>Answer choices:</em>
+        {{ renderChoiceList(question, reply, path) }}
+      {%- elif question is of_type("ListQuestion") %}
+        <ul style="list-style: none;">
+          {% set itemPathPrefix = path ~ "." %}
+          {% if (reply and reply.value and reply is of_type("ItemListReply")) %}
+            {% for i in reply.items %}
+              <li class="itemlist" id = "{{i}}">
+                <details open>
+                  <summary>
+                     <em>{{question.title|e}}  {{loop.index }} </em>
+                  </summary>
+                  {% set itemPath = itemPathPrefix ~ i %}
+                  {%- for q in question.followups %}
+                    {{ renderQuestion(q, itemPath, loop.index ~ ".") }}
+                  {%- endfor %}
+                </details>
+              </li>
+            {%- endfor %}
+          {% else %}
+            {%- for q in question.followups %}
+              <ul style="list-style: none;">
+                {{ renderQuestion(q, null, loop.index ~ ".") }}
+              </ul>
+            {%- endfor %}
+          {%- endif %}
+      {%- endif %}
+    </details>
+  </li>
+{%- endmacro -%}
+{%- macro renderChapter(chapter, humanIdentifier) -%}
+  <li class="chapter" id="{{chapter.uuid}}">
+    <details open>
+      <summary>
+        <strong>{{humanIdentifier|roman}}. {{chapter.title|e}}</strong><br/>
+      </summary>
+    {#    <summary>      <h3 class="chapter" id="{{chapter.uuid}}">{{humanIdentifier|roman}}. {{chapter.title|e}}</h3>    </summary> #}
+      {% if chapter.text and chapter.text|length > 0 %}
+        {{ chapter.text|markdown }}
+      {% endif %}
+      <ul style="list-style: none;">
+        {%- for question in chapter.questions %}
+          {{ renderQuestion(question, chapter.uuid, loop.index ~ ".") }}
+        {%- endfor %}
+      </ul>
+    </details>
+  </li>
+{%- endmacro -%}
+{%- macro renderPhase(phase, humanIdentifier) -%}
+  <li class="phase" id="{{phase.uuid}}">
+    <details open>
+      <summary>
+        <strong>{{humanIdentifier}} {{phase.title|e}}</strong>
+      </summary>
+      {% if phase.description and phase.description|length > 0 %}
+        {{ phase.description|markdown }}
+      {% endif %}
+      {% if phase.annotations and phase.annotations|length > 0 %}
+        {{ phase.description|markdown }}
+      {% endif %}
+    </details>
+  </li>
+{%- endmacro -%}
+{%- macro renderMetric(metric) -%}
+  <li class="metric" id="{{metric.uuid}}">
+    <details open>
+      <summary>
+        <strong>{{metric.abbreviation}}: {{metric.title|e}}</strong>
+      </summary>
+      {% if metric.description and metric.description|length > 0 %}
+        {{ metric.description|markdown }}
+      {% endif %}
+    </details>
+  </li>
+{%- endmacro -%}
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <style>{% include "src/html-list/default.css" %}</style>
+    <title>DSW KM: {{dc.pkg.name|e}}</title>
+    <style>
+      body {
+      font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+      }
+      p {
+      margin: 0;
+      }
+      li.question {
+      margin-bottom: 0.5em;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>{{dc.pkg.name|e}}</h1>
+    <em>Identifier:</em> <code>{{dc.pkg.id}}</code><br/>
+    <em>Published:</em> {{dc.pkg.created_at|datetime_format("%d %b %Y %H:%M:%S")}}<br/>
+    <p class="description">{{dc.pkg.description}}</p>
+
+    <ul class="tree">
+      <li>
+        <details open>
+          <summary>
+            <strong style="font-size:150%">Knowledge Model</strong>
+          </summary>
+          <ul>
+            <li>
+              <details open>
+                <summary>
+                  <strong style="font-size:130%">Chapters</strong>
+                </summary>
+                <ul>
+                  {%- for chapter in dc.km.chapters %}
+                    {{ renderChapter(chapter, loop.index) }}
+                  {%- endfor %}
+                </ul>
+              </details>
+            </li>
+            <li>
+              <details open>
+                <summary>
+                  <strong style="font-size:130%">Tags</strong>
+                </summary>
+                <ul>
+                  {%- for tag in dc.km.tags %}
+                    {{ renderFullTag(tag) }}
+                  {%- endfor %}
+                </ul>
+              </details>
+            </li>
+            <li>
+              <details open>
+                <summary>
+                  <strong style="font-size:130%">Integrations</strong>
+                </summary>
+                <ul>
+                  {%- for integration in dc.km.integrations %}
+                    {{ renderFullIntegration(integration) }}
+                  {%- endfor %}
+                </ul>
+              </details>
+            </li>
+            <li>
+              <details open>
+                <summary>
+                  <strong style="font-size:130%">Phases</strong>
+                </summary>
+                <ul>
+                  {%- for p in dc.km.phase_uuids -%}
+                    {# dc.km.phases is empty for the time being: bug in context.py for KnowledgeModel #}
+                    {% set phase = dc.km.e.phases[p] %}
+                    {{ renderPhase(phase, loop.index ~ ".") }}
+                  {%- endfor -%}
+                </ul>
+              </details>
+            </li>
+            <li>
+              <details open>
+                <summary>
+                  <strong style="font-size:130%">Metrics</strong>
+                </summary>
+                <ul>
+                  {%- for metric in dc.km.metrics -%}
+                    {{ renderMetric(metric) }}
+                  {%- endfor -%}
+                </ul>
+              </details>
+            </li>
+          </ul>
+        </details>
+      </li>
+    </ul>
+    <hr />
+    <center>Generated from DSW using <code>dsw:insight:1.0.0</code> template</center>
+  </body>
+</html>

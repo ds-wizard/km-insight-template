@@ -1,0 +1,404 @@
+{%- set dc = ctx|to_context_obj -%}
+{%- macro renderFullIntegration(integration) -%}
+  <li>
+    <strong>{{integration.name}}</strong>
+    <ul>
+      <li><em>ID:</em> {{integration.id}}</li>
+      <li><em>Logo:</em> {% if integration.logo != "" %}<img style="max-height: 50px;" src="{{ integration.logo }}" alt="{{ integration.name }}" />{% endif %}</li>
+      <li><em>Props:</em> {{integration.props|join(", ")}}</li>
+      <li><em>Request:</em>
+        <ul>
+          <li><em>Method:</em> {{integration.rq_method}}</li>
+          <li><em>URL:</em> {{integration.rq_url}}</li>
+          <li><em>Headers:</em> <pre>{{integration.rq_headers|tojson(4)}}</pre></li>
+          <li><em>Body:</em> <pre>{{integration.rq_body}}</pre></li>
+        </ul>
+      </li>
+      <li><em>Response:</em>
+        <ul>
+          <li><em>Item ID:</em> {{integration.rs_item_id}}</li>
+          <li><em>Item Template:</em> {{integration.rs_item_template}}</li>
+          <li><em>Item URL:</em> {{integration.item_url}}</li>
+          <li><em>List field:</em> {{integration.rs_list_field}}</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+{%- endmacro -%}
+{%- macro renderFullTag(tag) -%}
+  <li class="tag" id="{{tag.uuid}}">
+    <strong>{{tag.name|e}}</strong>
+    <em>Color:</em> {{tag.color}} (<span style="color: {{tag.color}};">{{tag.color}}</span>)<br/>
+    <em>Description:</em> {{tag.description|markdown}}
+  </li>
+{%- endmacro -%}
+{%- macro renderResourcePageReferences(question) -%}
+  {% set refs = question.resource_page_references %}
+  {% if refs|length > 0 %}
+    <div class="references references-resourcepage">
+      <svg aria-hidden="true" data-prefix="fas" data-icon="book" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="svg-inline--fa fa-book fa-w-14 fa-2x"><path fill="currentColor" d="M448 360V24c0-13.3-10.7-24-24-24H96C43 0 0 43 0 96v320c0 53 43 96 96 96h328c13.3 0 24-10.7 24-24v-16c0-7.5-3.5-14.3-8.9-18.7-4.2-15.4-4.2-59.3 0-74.7 5.4-4.3 8.9-11.1 8.9-18.6zM128 134c0-3.3 2.7-6 6-6h212c3.3 0 6 2.7 6 6v20c0 3.3-2.7 6-6 6H134c-3.3 0-6-2.7-6-6v-20zm0 64c0-3.3 2.7-6 6-6h212c3.3 0 6 2.7 6 6v20c0 3.3-2.7 6-6 6H134c-3.3 0-6-2.7-6-6v-20zm253.4 250H96c-17.7 0-32-14.3-32-32 0-17.6 14.4-32 32-32h285.4c-1.9 17.1-1.9 46.9 0 64z" class=""></path></svg>
+      <span><b>Data Stewardship for Open Science:</b></span>
+      {% for reference in refs %}
+        <a id="{{reference.uuid}}" class="reference resourcepage-link" href="{{ reference.url }}" target="_blank"><i>{{reference.short_uuid}}</i></a>
+      {% endfor %}
+    </div>
+  {% endif %}
+{%- endmacro -%}
+{%- macro renderURLReferences(question) -%}
+  {% set refs = question.url_references %}
+  {% if refs|length > 0 %}
+    <div class="references references-url" >
+      <svg aria-hidden="true" data-prefix="far" data-icon="external-link" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" class="svg-inline--fa fa-external-link fa-w-18 fa-2x"><path fill="currentColor" d="M576 14.4l-.174 163.2c0 7.953-6.447 14.4-14.4 14.4H528.12c-8.067 0-14.56-6.626-14.397-14.691l2.717-73.627-2.062-2.062-278.863 278.865c-4.686 4.686-12.284 4.686-16.971 0l-23.029-23.029c-4.686-4.686-4.686-12.284 0-16.971L474.379 61.621l-2.062-2.062-73.626 2.717C390.626 62.44 384 55.946 384 47.879V14.574c0-7.953 6.447-14.4 14.4-14.4L561.6 0c7.953 0 14.4 6.447 14.4 14.4zM427.515 233.74l-24 24a12.002 12.002 0 0 0-3.515 8.485V458a6 6 0 0 1-6 6H54a6 6 0 0 1-6-6V118a6 6 0 0 1 6-6h301.976c10.691 0 16.045-12.926 8.485-20.485l-24-24A12.002 12.002 0 0 0 331.976 64H48C21.49 64 0 85.49 0 112v352c0 26.51 21.49 48 48 48h352c26.51 0 48-21.49 48-48V242.225c0-10.691-12.926-16.045-20.485-8.485z" class=""></path></svg>
+      <b>External Links:</b>
+      {% for reference in refs %}
+        <a id="{{reference.uuid}}" class="reference url-link" href="{{reference.url}}" target="_blank"><i>{{reference.label}}</i></a>
+      {% endfor %}
+    </div>
+  {% endif %}
+{%- endmacro -%}
+{%- macro renderExperts(question) -%}
+  {% if question.experts|length > 0 %}
+    <div class="experts">
+      <svg aria-hidden="true" data-prefix="far" data-icon="address-book" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="svg-inline--fa fa-address-book fa-w-14 fa-2x"><path fill="currentColor" d="M436 160c6.6 0 12-5.4 12-12v-40c0-6.6-5.4-12-12-12h-20V48c0-26.5-21.5-48-48-48H48C21.5 0 0 21.5 0 48v416c0 26.5 21.5 48 48 48h320c26.5 0 48-21.5 48-48v-48h20c6.6 0 12-5.4 12-12v-40c0-6.6-5.4-12-12-12h-20v-64h20c6.6 0 12-5.4 12-12v-40c0-6.6-5.4-12-12-12h-20v-64h20zm-68 304H48V48h320v416zM208 256c35.3 0 64-28.7 64-64s-28.7-64-64-64-64 28.7-64 64 28.7 64 64 64zm-89.6 128h179.2c12.4 0 22.4-8.6 22.4-19.2v-19.2c0-31.8-30.1-57.6-67.2-57.6-10.8 0-18.7 8-44.8 8-26.9 0-33.4-8-44.8-8-37.1 0-67.2 25.8-67.2 57.6v19.2c0 10.6 10 19.2 22.4 19.2z" class=""></path></svg>
+      <b>Experts:</b>
+      {% for expert in question.experts %}
+        <i class="expert">{{expert.name}} (<a href="mailto:{{expert.email}}">{{expert.email}}</a>)</i>
+      {% endfor %}
+    </div>
+  {% endif %}
+{%- endmacro -%}
+{%- macro renderQuestionExtras(question) -%}
+  <div class="extra-data">
+    {# Question - References - Resource Page References #}
+    {{ renderResourcePageReferences(question) }}
+    {# Question - References - URL References #}
+    {{ renderURLReferences(question) }}
+    {# Question - Experts #}
+    {{ renderExperts(question) }}
+  </div>
+{%- endmacro -%}
+{%- macro questionClasses(question) -%}
+  "question {{ "required" if question.is_required else "optional"}} {{  ("phase-" ~ question.required_phase.order) if question.required_phase else "phase-none" }}"
+{%- endmacro -%}
+{%- macro renderExpert(expert) %}
+  <li class="expert" id="{{expert.uuid}}">
+    {{expert.name|e}} <a href="mailto:{{expert.email}}">{{expert.email}}</a>
+  </li>
+{%- endmacro -%}
+{%- macro renderReference(reference) %}
+  {%- if reference is of_type("URLReference") -%}
+    <li class="reference resource-page" id="{{reference.uuid}}">
+      <a href="{{ reference.url }}" target="_blank">{{reference.label}}</a>
+    </li>
+  {%- elif reference is of_type("ResourcePageReference") -%}
+    <li class="reference resource-page" id="{{reference.uuid}}">
+      <a href="{{ (dc.config.client_url ~ "/book-references/" ~ reference.short_uuid) }}" target="_blank">{{reference.short_uuid}}</a>
+    </li>
+  {%- else -%}
+    <li class="reference cross-reference" id="{{reference.uuid}}">
+      {{reference.target_uuid}}
+    </li>
+  {%- endif -%}
+{%- endmacro -%}
+{%- macro renderTag(tag) %}
+  <li class="tag" id="{{tag.uuid}}">
+    {{tag.name|e}}
+  </li>
+{%- endmacro -%}
+{%- macro renderIntegration(integration, reply, path) -%}
+  {% if reply and reply.value %}
+    <div class="answer-block answer-simple" id="{{path}}" data-path="{{path}}" data-type="answer">
+      <p class="answer">
+        <svg aria-hidden="true" data-prefix="fas" data-icon="check" class="svg-inline--fa fa-check fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z"></path></svg>
+        {% if reply is of_type("StringReply") %}
+          <span>{{reply.value}}</span>
+        {% else %}
+          <span>{{reply.value}}</span>
+          {% if reply.is_integration %}
+            {# Integration #}
+            {% set integration = question.integration %}
+            <div class="integration-link">
+              {% if integration.logo %}<img src="{{ integration.logo }}" alt="{{ integration.name }}">{% endif %}
+              <a href="{{ integration.item(reply.item_id) }}">
+                {{ integration.item(reply.item_id) }}
+              </a>
+            </div>
+          {% endif %}
+        {% endif %}
+      </p>
+    </div>
+  {% else %}
+    <em>Integration:</em> {{integration.name|e}}<br/>
+  {% endif %}
+{%- endmacro -%}
+{%- macro renderAnswerValue(reply) -%}
+  <div class="answer-block answer-simple" data-type="answer">
+    <p class="answer">
+      <svg aria-hidden="true" data-prefix="fas" data-icon="check" class="svg-inline--fa fa-check fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z"></path></svg>
+      <span>{{reply.value}}</span>
+    </p>
+  </div>
+{%- endmacro -%}
+{%- macro renderChoiceList(question, reply, path) %}
+  <ul style="list-style: none;">
+    {% for choice in question.choices %}
+      {% set humanIdentifier = (loop.index - 1) | of_alphabet ~ "." %}
+      <li class="choice" id="{{choice.uuid}}">
+        {% if reply and reply.value and choice in reply.choices %}
+          <div class="choice choice-selected">
+            <svg aria-hidden="true" focusable="false" data-prefix="far" data-icon="check-square" class="svg-inline--fa fa-check-square fa-w-14" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="currentColor" d="M400 32H48C21.49 32 0 53.49 0 80v352c0 26.51 21.49 48 48 48h352c26.51 0 48-21.49 48-48V80c0-26.51-21.49-48-48-48zm0 400H48V80h352v352zm-35.864-241.724L191.547 361.48c-4.705 4.667-12.303 4.637-16.97-.068l-90.781-91.516c-4.667-4.705-4.637-12.303.069-16.971l22.719-22.536c4.705-4.667 12.303-4.637 16.97.069l59.792 60.277 141.352-140.216c4.705-4.667 12.303-4.637 16.97.068l22.536 22.718c4.667 4.706 4.637 12.304-.068 16.971z"></path></svg>
+            <strong> {{humanIdentifier}} {{choice.label|e}}</strong><br/>
+          </div>
+      </li>
+    {% elif reply and reply.value %}
+      <div class="choice choice-unselected">
+        <svg aria-hidden="true" focusable="false" data-prefix="far" data-icon="square" class="svg-inline--fa fa-square fa-w-14" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="currentColor" d="M400 32H48C21.5 32 0 53.5 0 80v352c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48V80c0-26.5-21.5-48-48-48zm-6 400H54c-3.3 0-6-2.7-6-6V86c0-3.3 2.7-6 6-6h340c3.3 0 6 2.7 6 6v340c0 3.3-2.7 6-6 6z"></path></svg>
+        <strong> {{humanIdentifier}} {{choice.label|e}}</strong><br/>
+      </div>
+    {% else %}
+      <strong> {{humanIdentifier}} {{choice.label|e}}</strong>
+    {% endif %}
+  {% endfor %}
+  </ul>
+{%- endmacro -%}
+{%- macro renderAnswerOptions(question, reply, path, level) %}
+  {%- for answer in question.answers %}
+    {% set humanIdentifier = (loop.index - 1) | of_alphabet ~ "." %}
+    {% if reply and reply.value and reply is of_type("AnswerReply") %}
+      {% set index = question.answers.index(reply.answer) %}
+      {% if index == (loop.index - 1) %}
+        {% set path = path ~ "." ~ answer.uuid %}
+        
+        {{ getNextLevelOpeningTag(level+1) ~ 'class="answer">' }}
+        <div class="answer-block answer-option" id="{{path}}" data-path="{{path}}" data-uuid="{{answer.uuid}}" data-type="answer">
+            <svg aria-hidden="true" data-prefix="fas" data-icon="check" class="svg-inline--fa fa-check fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M173.898 439.404l-166.4-166.4c-9.997-9.997-9.997-26.206 0-36.204l36.203-36.204c9.997-9.998 26.207-9.998 36.204 0L192 312.69 432.095 72.596c9.997-9.997 26.207-9.997 36.204 0l36.203 36.204c9.997 9.997 9.997 26.206 0 36.204l-294.4 294.401c-9.998 9.997-26.207 9.997-36.204-.001z"></path></svg>
+            <span><strong> {{humanIdentifier}} {{answer.label|e}}</strong></span
+        </div>
+        {{ getNextLevelClosingTag(level) }}
+      {% else %}
+        {{ getNextLevelOpeningTag(level+1) }}
+        <strong> {{humanIdentifier}} {{answer.label|e}}</strong><br/>
+        {{ getNextLevelClosingTag(level) }}
+      {% endif %}
+    {% else %}
+      <strong> {{humanIdentifier}} {{answer.label|e}}</strong><br/>
+    {% endif %}
+    {% if answer.advice and answer.advice|length > 0 %}
+      <em>Advice:</em> {{ answer.advice|markdown }} <br>
+    {% endif %}
+    {% if answer.metric_measures|length > 0 %}
+      <em>Metrics:</em>
+      <ul>
+        {% for m in answer.metric_measures -%}
+          <li>{{m.metric.title}}, weight: {{m.weight}}, measure: {{m.measure}}</li>
+        {% endfor -%}
+      </ul>
+    {% endif %}
+    {%- if answer.followups|length > 0 %}
+      <div class="followups">
+        
+        {%- for question in answer.followups %}
+          {{ renderQuestion(question, path, level+2, loop.index ~ ".") }}
+        {%- endfor %}
+      </div>
+    {% endif %}
+  {%- endfor %}
+{%- endmacro -%}
+{% macro getNextLevelOpeningTag(level) %}
+  {% if level == 1 %}
+    <h2
+  {% elif level == 2 %}
+   <h3
+  {% elif level == 3 %}
+   <h4
+ {% elif level == 4 %}
+   <h5
+  {% elif level == 5 %}
+   <h6
+  {% else %}
+   <p
+  {% endif %}
+{% endmacro %}
+{% macro getNextLevelClosingTag(level) %}
+  {% if level == 1 %}
+    </h2>
+  {% elif level == 2 %}
+    </h3>
+  {% elif level == 3 %}
+    </h4>
+  {% elif level == 4 %}
+    </h5>
+  {% elif level == 5 %}
+    </h6>
+  {% else %}
+    </p>
+  {% endif %}
+{% endmacro %}
+{%- macro renderQuestion(question, path, level, humanIdentifier) %}
+  {% set reply = null %}
+  {% if path %}
+    {% set path = path ~ "." ~ question.uuid %}
+    {% set reply = question.replies.get(path) %}
+  {% endif %}
+
+  {% if not(question is of_type("ListQuestion") and reply and reply.value and reply is of_type("ItemListReply")) %}
+    <div class={{questionClasses(question)}} id="{{path}}" data-uuid="{{question.uuid}}" data-type="question">
+      <div class="question-header">
+        
+        {{ getNextLevelOpeningTag(level) ~ 'class="title">' }} 
+        <strong class="human-identifier">{{humanIdentifier ~ " "}} {{question.title|e}}</strong>
+        {{ getNextLevelClosingTag(level) }} 
+        
+        {% if question is of_type("IntegrationQuestion") %}
+          {{ renderIntegration(question.integration, reply, path) }}
+        {% endif %}
+        <div class="text">
+          {{question.text|markdown}}
+        </div>
+        {% if question.required_phase %}
+          {% set phase = question.required_phase %}
+          <em>Phase:</em> <font face = "Verdana"> {{phase.title|e}} </font> <br/>
+        {% endif %}
+
+        <em>Tags:</em>
+        <ul style="list-style: none;">
+          {%- for tag in question.tags %}
+            {{ renderTag(tag) }}
+          {%- endfor -%}
+        </ul>
+        </div>
+        {{ renderQuestionExtras(question) }}
+      {% endif %}
+</div>
+    {% if question is of_type("ValueQuestion")
+      and reply and reply.value and reply is of_type("StringReply") %}
+      {{ renderAnswerValue(reply) }}
+    {%- elif question is of_type("OptionsQuestion") %}
+      <em>Answer options:</em><br><br>
+      {{ renderAnswerOptions(question, reply, path, level) }}
+    {%- elif question is of_type("MultiChoiceQuestion") %}
+      <em>Answer choices:</em>
+      {{ renderChoiceList(question, reply, path) }}
+    {%- elif question is of_type("ListQuestion") %}
+      {% set itemPathPrefix = path ~ "." %}
+      {% if (reply and reply.value and reply is of_type("ItemListReply")) %}
+        {% for i in reply.items %}
+          {{ getNextLevelOpeningTag(level) ~ 'class="title">' }}  
+          <em>{{humanIdentifier ~ " "}} {{question.title|e}}  {{loop.index }} </em>
+          {{ getNextLevelClosingTag
+          (level) }} 
+              {% set itemPath = itemPathPrefix ~ i %}
+              {%- for q in question.followups %}
+                {{ renderQuestion(q, itemPath, level + 1, loop.index ~ ".") }}
+              {%- endfor %}
+          {%- endfor %}
+        {% else %}
+          <div class="answer-item" id="{{itemPath}}">
+            <div class="followups">
+              {%- for q in question.followups %}
+                {{ renderQuestion(q, null, level + 1, loop.index ~ ".") }}
+            </div>
+          </div>
+          {%- endfor %}
+        {%- endif %}
+      {%- endif %}
+  </div>
+{%- endmacro -%}
+{%- macro renderChapter(chapter, humanIdentifier) -%}
+<section class="chapter" id="{{chapter.uuid}}" data-uuid="{{chapter.uuid}}" data-type="chapter"> 
+    <h2 class="title">{{humanIdentifier|roman}}. {{chapter.title}}</h2>
+    <p class="text-light">{{chapter.text|markdown}}</p>
+
+    <section class="questions">
+      {% for question in chapter.questions %}
+        {{ renderQuestion(question, chapter.uuid, 2, loop.index ~ ".") }} 
+      {% else %}
+        <p class="text-light">No questions</p>
+      {% endfor %}
+    </section>
+</section> 
+{%- endmacro -%}
+{%- macro renderPhase(phase, humanIdentifier) -%}
+  <li class="phase" id="{{phase.uuid}}">
+     
+      
+        <strong>{{humanIdentifier}} {{phase.title|e}}</strong>
+      
+      {% if phase.description and phase.description|length > 0 %}
+        {{ phase.description|markdown }}
+      {% endif %}
+      {% if phase.annotations and phase.annotations|length > 0 %}
+        {{ phase.description|markdown }}
+      {% endif %}
+    
+  </li>
+{%- endmacro -%}
+{%- macro renderMetric(metric) -%}
+  <li class="metric" id="{{metric.uuid}}">
+     
+      
+        <strong>{{metric.abbreviation}}: {{metric.title|e}}</strong>
+      
+      {% if metric.description and metric.description|length > 0 %}
+        {{ metric.description|markdown }}
+      {% endif %}
+    
+  </li>
+{%- endmacro -%}
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <style>{% include "src/pdf/default.css" %}</style>
+    <title>DSW KM: {{dc.pkg.name|e}}</title>
+    <style>
+      body {
+      font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
+      }
+      p {
+      margin: 0;
+      }
+      li.question {
+      margin-bottom: 0.5em;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>{{dc.pkg.name|e}}</h1>
+    <em>Identifier:</em> <code>{{dc.pkg.id}}</code><br/>
+    <em>Published:</em> {{dc.pkg.created_at|datetime_format("%d %b %Y %H:%M:%S")}}<br/>
+    <p class="description">{{dc.pkg.description}}</p>
+
+    {%- for chapter in dc.km.chapters %}
+      {{ renderChapter(chapter, loop.index) }}
+    {%- endfor %}
+
+    {%- for tag in dc.km.tags %}
+      {{ renderFullTag(tag) }}
+    {%- endfor %}
+    {%- for integration in dc.km.integrations %}
+      {{ renderFullIntegration(integration) }}
+    {%- endfor %}
+                 
+    <strong style="font-size:130%">Phases</strong>
+    
+    <ul>
+      {%- for p in dc.km.phase_uuids -%}
+        {# dc.km.phases is empty for the time being: bug in context.py for KnowledgeModel #}
+        {% set phase = dc.km.e.phases[p] %}
+        {{ renderPhase(phase, loop.index ~ ".") }}
+      {%- endfor -%}
+    </ul>
+    
+    <strong style="font-size:130%">Metrics</strong>
+                
+    <ul>
+      {%- for metric in dc.km.metrics -%}
+        {{ renderMetric(metric) }}
+      {%- endfor -%}
+    </ul>
+
+    <hr />
+    <center>Generated from DSW using <code>dsw:insight:1.0.0</code> template</center>
+  </body>
+</html>
