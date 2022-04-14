@@ -32,6 +32,29 @@
           }
         }
       ]
+    },
+    {
+      "uuid": "3e14023f-933f-4655-b3ec-96dbf19cbd0d",
+      "name": "PDF Document",
+      "shortName": "pdf",
+      "icon": "far fa-file-pdf",
+      "color": "#f15a24",
+      "steps": [
+        {
+          "name": "jinja",
+          "options": {
+            "template": "src/pdf/template.html.j2",
+            "content-type": "text/html",
+            "extension": "html"
+          }
+        },
+        {
+          "name": "wkhtmltopdf",
+          "options": {
+            "args": "--enable-toc-back-links --outline-depth 10"
+          }
+        }
+      ]
     }
   ],
   "_tdk": {
