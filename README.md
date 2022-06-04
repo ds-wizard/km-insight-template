@@ -4,6 +4,10 @@ Explore the KM content in many ways, together with answers when present. The tem
 
 ## Changelog
 
+### 1.1.0
+
+- metamodel 10
+
 ### 1.0.0
 
 - shows in a user-friendly way all questions, together with answers when those are present

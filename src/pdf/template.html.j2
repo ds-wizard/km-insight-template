@@ -116,13 +116,13 @@
           <span>{{reply.value}}</span>
           {% if reply.is_integration %}
             {# Integration #}
-            {% set integration = question.integration %}
             <div class="integration-link">
-              {% if integration.logo %}<img src="{{ integration.logo }}" alt="{{ integration.name }}">{% endif %}
+              {% if integration.logo %}<img src="{{ integration.logo }}" alt="{{ integration.name }}">
+              {% endif %}
               <a href="{{ integration.item(reply.item_id) }}">
                 {{ integration.item(reply.item_id) }}
               </a>
-            </div>
+            </div> 
           {% endif %}
         {% endif %}
       </p>
@@ -252,6 +252,7 @@
         {% if question is of_type("IntegrationQuestion") %}
           {{ renderIntegration(question.integration, reply, path) }}
         {% endif %}
+
         <div class="text">
           {{question.text|markdown}}
         </div>
@@ -350,7 +351,7 @@
   <head>
     <meta charset="UTF-8" />
     <style>{% include "src/pdf/default.css" %}</style>
-    <title>DSW KM: {{dc.pkg.name|e}}</title>
+    <title>DSW KM: {{dc.qtn.name|e}}</title>
     <style>
       body {
       font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
@@ -364,7 +365,7 @@
     </style>
   </head>
   <body>
-    <h1>{{dc.pkg.name|e}}</h1>
+    <h1>{{dc.qtn.name|e}}</h1>
     <em>Identifier:</em> <code>{{dc.pkg.id}}</code><br/>
     <em>Published:</em> {{dc.pkg.created_at|datetime_format("%d %b %Y %H:%M:%S")}}<br/>
     <p class="description">{{dc.pkg.description}}</p>
