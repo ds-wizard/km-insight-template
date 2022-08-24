@@ -27,8 +27,8 @@
 {%- macro renderAnswer(answer, parent, pathPrefix, humanIdentifier) %}
   {%- set path = pathPrefix ~ "." ~ answer.uuid %}
   {{humanIdentifier}},{{answer.uuid}},answer,{{answer.label|tojson}},{% if answer.advice %}{{answer.advice|tojson}}{% endif %},,{{answer.followups|length}},{%- if answer.metric_measures|length > 0 -%}metrics:{%- for m in answer.metric_measures -%}({{m.metric.uuid}}:{{m.weight}}:{{m.measure}}){%- endfor -%}{%- endif -%},{{parent}},{{path}}
-  {%- for questionUuid in answer.followUpUuids -%}
-    {{ renderQuestion(km.entities.questions[questionUuid], answer.uuid, path, humanIdentifier ~ "." ~ loop.index) }}
+  {%- for question in answer.followups -%}
+    {{ renderQuestion(question, answer.uuid, path, humanIdentifier ~ "." ~ loop.index) }}
   {%- endfor -%}
 {%- endmacro -%}
 {%- macro renderQuestion(question, parent, pathPrefix, humanIdentifier) %}
