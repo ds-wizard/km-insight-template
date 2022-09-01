@@ -22,7 +22,7 @@
 {%- endmacro -%}
 {%- macro renderChoice(choice, parent, pathPrefix, humanIdentifier) %}
   {%- set path = pathPrefix ~ "." ~ choice.uuid %}
-  {{humanIdentifier}},{{choice.uuid}},choice,{{choice.label|e}},,,,,{{parent}},{{path}}
+  {{humanIdentifier}},{{choice.uuid}},choice,{{choice.label|tojson}},,,,,{{parent}},{{path}}
 {%- endmacro -%}
 {%- macro renderAnswer(answer, parent, pathPrefix, humanIdentifier) %}
   {%- set path = pathPrefix ~ "." ~ answer.uuid %}
