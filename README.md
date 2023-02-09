@@ -4,6 +4,12 @@ Explore the KM content in many ways
 
 ## Changelog
 
+
+### 1.3.0
+
+-  Update to metamodel 11
+
+
 ### 1.2.1
 
 - choice rendering needed a review
