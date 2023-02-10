@@ -4,6 +4,12 @@ Explore the KM content in many ways, together with answers when present. The tem
 
 ## Changelog
 
+
+### 1.2.0
+
+- metamodel 11
+
+
 ### 1.1.0
 
 - metamodel 10
