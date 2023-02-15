@@ -4,6 +4,12 @@ Explore the KM content in many ways
 
 ## Changelog
 
+### 1.2.0
+
+- metamodel 11
+
+## Changelog
+
 ### 1.1.0
 
 - metamodel 9
