@@ -1,119 +1,92 @@
 {
-    "templateId": "km-insight",
-    "organizationId": "dsw",
-    "version": "0.7.0",
-    "name": "KM Insight",
-    "description": "Explore the KM content in many ways",
-    "license": "Apache-2.0",
-    "metamodelVersion": 8,
-    "recommendedPackageId": null,
-    "allowedPackages": [
-        {
-            "orgId": null,
-            "kmId": null,
-            "minVersion": null,
-            "maxVersion": null
-        }
-    ],
-    "formats": [
-        {
-            "uuid": "9ac0e163-e422-4714-94de-d4977edab94d",
-            "name": "HTML List",
-            "shortName": "html",
-            "icon": "fas fa-file",
-            "color": "#f15722",
-            "steps": [
-                {
-                    "name": "jinja",
-                    "options": {
-                        "template": "src/html-list/template.html.j2",
-                        "content-type": "text/html",
-                        "extension": "html"
-                    }
-                }
-            ]
-        },
-        {
-            "uuid": "f4bd941a-dfbe-4226-a1fc-200fb5269311",
-            "name": "MS Word List",
-            "shortName": "docx",
-            "icon": "far fa-file-word",
-            "color": "#0991FF",
-            "steps": [
-                {
-                    "name": "jinja",
-                    "options": {
-                        "template": "src/html-list/template.html.j2",
-                        "content-type": "text/html",
-                        "extension": "html"
-                    }
-                },
-                {
-                    "name": "pandoc",
-                    "options": {
-                        "from": "html",
-                        "to": "docx"
-                    }
-                }
-            ]
-        },
-        {
-            "uuid": "9ac0e163-e422-4714-94de-d4977edab94f",
-            "name": "CSV Table",
-            "shortName": "csv",
-            "icon": "fas fa-csv",
-            "color": "#f15722",
-            "steps": [
-                {
-                    "name": "jinja",
-                    "options": {
-                        "template": "src/table/template.csv.j2",
-                        "content-type": "text/csv",
-                        "extension": "csv"
-                    }
-                }
-            ]
-        },
-        {
-            "uuid": "9ac0e163-e422-4714-94de-d4977edab95f",
-            "name": "HTML Table",
-            "shortName": "html",
-            "icon": "fas fa-file",
-            "color": "#f15722",
-            "steps": [
-                {
-                    "name": "jinja",
-                    "options": {
-                        "template": "src/table/template.html.j2",
-                        "content-type": "text/html",
-                        "extension": "html"
-                    }
-                }
-            ]
-        },
-        {
-        "uuid": "cc645c4a-22d6-4f87-944e-25c9123913f0",
-        "name": "OPML Outline",
-        "shortName": "opml",
-        "icon": "far fa-file-code",
-        "color": "#f15a24",
-        "steps": [
-            {
-            "name": "jinja",
-            "options": {
-                "template": "src/mindmap/template.opml.j2",
-                "content-type": "text/x-opml",
-                "extension": "opml"
-            }
-            }
-        ]
-        }
-    ],
-    "_tdk": {
-        "version": "2.14.0",
-        "readmeFile": "README.md",
-        "files": [
-            "src/**/*"
-        ]
+  "templateId": "user-friendly-km-insight",
+  "organizationId": "dsw",
+  "version": "1.1.0",
+  "name": "User Friendly KM Insight",
+  "description": "Explore the KM content",
+  "license": "Apache-2.0",
+  "metamodelVersion": 9,
+  "recommendedPackageId": null,
+  "allowedPackages": [
+    {
+      "orgId": null,
+      "kmId": null,
+      "minVersion": null,
+      "maxVersion": null
     }
+  ],
+  "formats": [
+    {
+      "uuid": "29be1d14-a338-4aad-ad64-ba245bd6d682",
+      "name": "HTML List",
+      "shortName": "html",
+      "icon": "fas fa-file",
+      "color": "#f15722",
+      "steps": [
+        {
+          "name": "jinja",
+          "options": {
+            "template": "src/html-list/template.html.j2",
+            "content-type": "text/html",
+            "extension": "html"
+          }
+        }
+      ]
+    },
+    {
+      "uuid": "95d5c478-7928-4654-9930-70bb0efa83dd",
+      "name": "MS Word List",
+      "shortName": "docx",
+      "icon": "far fa-file-word",
+      "color": "#0991FF",
+      "steps": [
+        {
+          "name": "jinja",
+          "options": {
+            "template": "src/html-list/template.html.j2",
+            "content-type": "text/html",
+            "extension": "html"
+          }
+        },
+        {
+          "name": "pandoc",
+          "options": {
+            "from": "html",
+            "to": "docx"
+          }
+        }
+      ]
+    },
+    {
+      "uuid": "55f804ec-b319-4112-ba61-a19109587ed9",
+      "name": "PDF Document",
+      "shortName": "pdf",
+      "icon": "far fa-file-pdf",
+      "color": "#f15a24",
+      "steps": [
+        {
+          "name": "jinja",
+          "options": {
+            "template": "src/html-list/template.html.j2",
+            "content-type": "text/html",
+            "extension": "html"
+          }
+        },
+        {
+          "name": "wkhtmltopdf",
+          "options": {
+            "args": "--disable-smart-shrinking -B 20mm -L 20mm -R 20mm -T 25mm"
+          }
+        }
+      ]
+    }
+  ],
+  "_tdk": {
+    "version": "3.2.0",
+    "readmeFile": "README.md",
+    "files": [
+      "src/**/*"
+    ]
+  },
+  "createdAt": "2022-02-02T09:21:37Z"
 }
