@@ -1,7 +1,7 @@
 {%- set dc = ctx|to_context_obj -%}
 {%- macro renderFullIntegration(integration) -%}
   <li>
-    <details>
+    <details open>
       <summary>
         <strong>{{integration.name}}</strong>
       </summary>
@@ -31,7 +31,7 @@
 {%- endmacro -%}
 {%- macro renderFullTag(tag) -%}
   <li class="tag" id="{{tag.uuid}}">
-    <details>
+    <details open>
       <summary>
         <strong>{{tag.name|e}}</strong>
       </summary>
@@ -76,6 +76,7 @@
           <span>{{reply.value}}</span>
           {% if reply.is_integration %}
             {# Integration #}
+            {% set integration = question.integration %}
             <div class="integration-link">
               {% if integration.logo %}<img src="{{ integration.logo }}" alt="{{ integration.name }}">{% endif %}
               <a href="{{ integration.item(reply.item_id) }}">
@@ -125,7 +126,7 @@
     {%- for answer in question.answers %}
       {% set humanIdentifier = (loop.index - 1) | of_alphabet ~ "." %}
       <li class="answer" id="{{answer.uuid}}">
-        <details>
+        <details open>
           {% if reply and reply.value and reply is of_type("AnswerReply") %}
             {% set index = question.answers.index(reply.answer) %}
             {% if index == (loop.index - 1) %}
@@ -179,7 +180,7 @@
   {% endif %}
     
   <li class="question" id="{{question.uuid}}">
-    <details>
+    <details open>
       <summary>
         <strong>{{humanIdentifier}} {{question.title|e}}</strong>
       </summary>
@@ -228,7 +229,7 @@
           {% if (reply and reply.value and reply is of_type("ItemListReply")) %}
             {% for i in reply.items %}
               <li class="itemlist" id = "{{i}}">
-                <details>
+                <details open>
                   <summary>
                      <em>{{question.title|e}}  {{loop.index }} </em>
                   </summary>
@@ -252,7 +253,7 @@
 {%- endmacro -%}
 {%- macro renderChapter(chapter, humanIdentifier) -%}
   <li class="chapter" id="{{chapter.uuid}}">
-    <details>
+    <details open>
       <summary>
         <strong>{{humanIdentifier|roman}}. {{chapter.title|e}}</strong><br/>
       </summary>
@@ -270,7 +271,7 @@
 {%- endmacro -%}
 {%- macro renderPhase(phase, humanIdentifier) -%}
   <li class="phase" id="{{phase.uuid}}">
-    <details>
+    <details open>
       <summary>
         <strong>{{humanIdentifier}} {{phase.title|e}}</strong>
       </summary>
@@ -285,7 +286,7 @@
 {%- endmacro -%}
 {%- macro renderMetric(metric) -%}
   <li class="metric" id="{{metric.uuid}}">
-    <details>
+    <details open>
       <summary>
         <strong>{{metric.abbreviation}}: {{metric.title|e}}</strong>
       </summary>
@@ -300,7 +301,7 @@
   <head>
     <meta charset="UTF-8" />
     <style>{% include "src/html-list/default.css" %}</style>
-    <title>DSW KM: {{dc.qtn.name|e}}</title>
+    <title>DSW KM: {{dc.pkg.name|e}}</title>
     <style>
       body {
       font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";
@@ -314,20 +315,20 @@
     </style>
   </head>
   <body>
-    <h1>{{dc.qtn.name|e}}</h1>
+    <h1>{{dc.pkg.name|e}}</h1>
     <em>Identifier:</em> <code>{{dc.pkg.id}}</code><br/>
     <em>Published:</em> {{dc.pkg.created_at|datetime_format("%d %b %Y %H:%M:%S")}}<br/>
     <p class="description">{{dc.pkg.description}}</p>
 
     <ul class="tree">
       <li>
-        <details>
+        <details open>
           <summary>
             <strong style="font-size:150%">Knowledge Model</strong>
           </summary>
           <ul>
             <li>
-              <details>
+              <details open>
                 <summary>
                   <strong style="font-size:130%">Chapters</strong>
                 </summary>
@@ -339,7 +340,7 @@
               </details>
             </li>
             <li>
-              <details>
+              <details open>
                 <summary>
                   <strong style="font-size:130%">Tags</strong>
                 </summary>
@@ -351,7 +352,7 @@
               </details>
             </li>
             <li>
-              <details>
+              <details open>
                 <summary>
                   <strong style="font-size:130%">Integrations</strong>
                 </summary>
@@ -363,7 +364,7 @@
               </details>
             </li>
             <li>
-              <details>
+              <details open>
                 <summary>
                   <strong style="font-size:130%">Phases</strong>
                 </summary>
@@ -377,7 +378,7 @@
               </details>
             </li>
             <li>
-              <details>
+              <details open>
                 <summary>
                   <strong style="font-size:130%">Metrics</strong>
                 </summary>
@@ -393,6 +394,6 @@
       </li>
     </ul>
     <hr />
-    <center>Generated from DSW using <code>dsw:km-insight:1.0.0</code> template</center>
+    <center>Generated from DSW using <code>dsw:insight:1.0.0</code> template</center>
   </body>
 </html>

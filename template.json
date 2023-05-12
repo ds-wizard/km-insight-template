@@ -1,9 +1,9 @@
 {
-  "templateId": "collapsible-user-friendly-km-insight",
+  "templateId": "insight-template",
   "organizationId": "dsw",
   "version": "1.2.0",
-  "name": "Collapsible User Friendly KM Insight",
-  "description": "Explore the KM content",
+  "name": "Insight",
+  "description": "Explore the KM content and answers, if they exist",
   "license": "Apache-2.0",
   "metamodelVersion": 11,
   "recommendedPackageId": null,
@@ -65,7 +65,7 @@
         {
           "name": "jinja",
           "options": {
-            "template": "src/html-list/template.html.j2",
+            "template": "src/pdf/template.html.j2",
             "content-type": "text/html",
             "extension": "html"
           }
@@ -73,7 +73,7 @@
         {
           "name": "wkhtmltopdf",
           "options": {
-            "args": "--disable-smart-shrinking -B 20mm -L 20mm -R 20mm -T 25mm"
+            "args": "--enable-toc-back-links --outline-depth 10"
           }
         }
       ]
@@ -86,5 +86,5 @@
       "src/**/*"
     ]
   },
-  "createdAt": "2022-03-31T16:36:37Z"
+  "createdAt": "2022-04-11T11:22:37Z"
 }

@@ -1,6 +1,6 @@
 # KM Insight
 
-Explore the KM content in many ways
+Explore the KM content in many ways, together with answers when present. The template is meant for data stewards and researchers.
 
 ## Changelog
 
@@ -8,15 +8,16 @@ Explore the KM content in many ways
 
 - metamodel 11
 
-## Changelog
 
 ### 1.1.0
 
+- metamodel 10
+
+### 1.0.0
+
+- shows in a user-friendly way all questions, together with answers when those are present
+- built from dsw:km-insight
 - metamodel 9
-
-### 1.0.0 
-
-- introducing collapsible/expandable sections
 
 ## License
 
