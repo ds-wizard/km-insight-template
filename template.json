@@ -17,7 +17,7 @@
   ],
   "formats": [
     {
-      "uuid": "568c130b-259b-4e5e-874d-011cd153e018",
+      "uuid": "29be1d14-a338-4aad-ad64-ba245bd6d682",
       "name": "HTML List",
       "shortName": "html",
       "icon": "fas fa-file",
@@ -29,12 +29,34 @@
             "template": "src/html-list/template.html.j2",
             "content-type": "text/html",
             "extension": "html"
+      ]
+    },
+    {
+      "uuid": "95d5c478-7928-4654-9930-70bb0efa83dd",
+      "name": "MS Word List",
+      "shortName": "docx",
+      "icon": "far fa-file-word",
+      "color": "#0991FF",
+      "steps": [
+        {
+          "name": "jinja",
+          "options": {
+            "template": "src/html-list/template.html.j2",
+            "content-type": "text/html",
+            "extension": "html"
+          }
+        },
+        {
+          "name": "pandoc",
+          "options": {
+            "from": "html",
+            "to": "docx"
           }
         }
       ]
     },
     {
-      "uuid": "3e14023f-933f-4655-b3ec-96dbf19cbd0d",
+      "uuid": "55f804ec-b319-4112-ba61-a19109587ed9",
       "name": "PDF Document",
       "shortName": "pdf",
       "icon": "far fa-file-pdf",

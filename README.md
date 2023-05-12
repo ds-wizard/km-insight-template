@@ -4,7 +4,6 @@ Explore the KM content in many ways, together with answers when present. The tem
 
 ## Changelog
 
-
 ### 1.2.0
 
 - metamodel 11
@@ -19,7 +18,6 @@ Explore the KM content in many ways, together with answers when present. The tem
 - shows in a user-friendly way all questions, together with answers when those are present
 - built from dsw:km-insight
 - metamodel 9
-
 
 ## License
 
