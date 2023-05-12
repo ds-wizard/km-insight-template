@@ -4,14 +4,19 @@ Explore the KM content in many ways
 
 ## Changelog
 
+### 1.2.0
+
+- metamodel 11
+
+## Changelog
+
 ### 1.1.0
 
 - metamodel 9
 
-### 1.0.0
+### 1.0.0 
 
-- metamodel 8
-- a cleaner output using the KM Insight template, whose public are data stewards reviewing knowledge models
+- introducing collapsible/expandable sections
 
 ## License
 

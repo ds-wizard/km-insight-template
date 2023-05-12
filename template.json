@@ -1,11 +1,11 @@
 {
-  "templateId": "user-friendly-km-insight",
+  "templateId": "collapsible-user-friendly-km-insight",
   "organizationId": "dsw",
-  "version": "1.1.0",
-  "name": "User Friendly KM Insight",
+  "version": "1.2.0",
+  "name": "Collapsible User Friendly KM Insight",
   "description": "Explore the KM content",
   "license": "Apache-2.0",
-  "metamodelVersion": 9,
+  "metamodelVersion": 11,
   "recommendedPackageId": null,
   "allowedPackages": [
     {
@@ -29,8 +29,6 @@
             "template": "src/html-list/template.html.j2",
             "content-type": "text/html",
             "extension": "html"
-          }
-        }
       ]
     },
     {
@@ -88,5 +86,5 @@
       "src/**/*"
     ]
   },
-  "createdAt": "2022-02-02T09:21:37Z"
+  "createdAt": "2022-03-31T16:36:37Z"
 }
