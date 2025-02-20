@@ -1,0 +1,232 @@
+{%- set dc = ctx|to_context_obj -%}
+{%- set entities = [] -%}
+
+{%- macro processResourcePage(page) -%}
+    {%- do entities.append({
+        'package': dc.pkg.id,
+        'uuid': page.uuid,
+        'type': 'ResourcePage',
+        'name': page.title,
+    }) -%}
+{%- endmacro -%}
+
+{%- macro processResourceCollection(collection) -%}
+    {%- do entities.append({
+        'package': dc.pkg.id,
+        'uuid': collection.uuid,
+        'type': 'ResourceCollection',
+        'name': collection.title,
+    }) -%}
+    {%- for page in collection.pages -%}
+        {{- processResourcePage(page) -}}
+    {%- endfor -%}
+{%- endmacro -%}
+
+{%- macro processQuestionTag(tag) -%}
+    {%- do entities.append({
+        'package': dc.pkg.id,
+        'uuid': tag.uuid,
+        'type': 'QuestionTag',
+        'name': tag.name,
+        'text': tag.description or '',
+        'color': tag.color,
+    }) -%}
+{%- endmacro -%}
+
+{%- macro processIntegration(integration) -%}
+    {%- do entities.append({
+        'package': dc.pkg.id,
+        'uuid': integration.uuid,
+        'id': integration.id,
+        'type': 'Integration',
+        'subtype': integration.type,
+        'name': integration.title,
+        'url': integration.widget_url if integration.type == 'WidgetIntegration' else integration.rq_url,
+    }) -%}
+{%- endmacro -%}
+
+{%- macro processMetric(metric) -%}
+    {%- do entities.append({
+        'package': dc.pkg.id,
+        'uuid': metric.uuid,
+        'id': metric.abbreviation,
+        'type': 'Metric',
+        'name': metric.title,
+        'text': metric.description or '',
+    }) -%}
+{%- endmacro -%}
+
+{%- macro processPhase(phase) -%}
+    {%- do entities.append({
+        'package': dc.pkg.id,
+        'uuid': phase.uuid,
+        'id': phase.order,
+        'type': 'Phase',
+        'name': phase.title,
+        'text': phase.description,
+    }) -%}
+{%- endmacro -%}
+
+{%- macro processExpert(humanId, expert) -%}
+    {%- do entities.append({
+        'package': dc.pkg.id,
+        'uuid': expert.uuid,
+        'id': humanId,
+        'type': 'Expert',
+        'name': expert.name,
+        'email': expert.email,
+    }) -%}
+{%- endmacro -%}
+
+{%- macro processReference(humanId, reference) -%}
+    {%- set entity = {
+        'package': dc.pkg.id,
+        'uuid': reference.uuid,
+        'id': humanId,
+        'type': 'Reference',
+        'subtype': reference.type,
+    } -%}
+    {%- if reference is of_type("UrlReference") -%}
+        {%- do entity.update({
+            'name': reference.label,
+            'url': reference.url,
+        }) -%}
+    {%- elif reference is of_type("ResourcePageReference") -%}
+        {%- do entity.update({
+            'name': reference.resource_page_uuid,
+        }) -%}
+    {%- endif -%}
+    {%- do entities.append(entity) -%}
+{%- endmacro -%}
+
+{%- macro processChoice(choice, path, humanId) -%}
+    {%- do entities.append({
+        'package': dc.pkg.id,
+        'uuid': choice.uuid,
+        'id': humanId,
+        'type': 'Choice',
+        'name': choice.label,
+        'path': path,
+    }) -%}
+{%- endmacro -%}
+
+{%- macro processAnswer(answer, path, humanId) -%}
+    {%- do entities.append({
+        'package': dc.pkg.id,
+        'uuid': answer.uuid,
+        'id': humanId,
+        'type': 'Answer',
+        'name': answer.label,
+        'text': answer.advice or None,
+        'path': path,
+    }) -%}
+    {%- set hiPrefix = humanId ~ "." -%}
+    {%- for question in answer.followups -%}
+        {{- processQuestion(question, path, hiPrefix ~ loop.index) -}}
+    {%- endfor -%}
+{%- endmacro -%}
+
+{%- macro processQuestion(question, path, humanId) -%}
+    {%- set entity = {
+        'package': dc.pkg.id,
+        'uuid': question.uuid,
+        'id': humanId,
+        'type': 'Question',
+        'name': question.title,
+        'text': question.text,
+        'path': path,
+    } -%}
+    {%- set path = path ~ '.' -%}
+
+    {%- for expert in question.experts -%}
+        {{- processExpert(humanId, expert) -}}
+    {%- endfor -%}
+    {%- for reference in question.references -%}
+        {{- processReference(humanId, reference) -}}
+    {%- endfor -%}
+
+    {%- if question is of_type("OptionsQuestion") -%}
+        {%- set hiPrefix = humanId ~ '.' -%}
+        {%- for answer in question.answers -%}
+            {{- processAnswer(answer, path ~ answer.uuid, hiPrefix ~ (loop.index - 1)|of_alphabet) -}}
+        {%- endfor -%}
+    {%- elif question is of_type("MultiChoiceQuestion") -%}
+        {%- set hiPrefix = humanId ~ '.' -%}
+        {%- for choice in question.choices -%}
+            {{- processChoice(choice, path ~ choice.uuid, hiPrefix ~ (loop.index - 1)|of_alphabet) -}}
+        {%- endfor -%}
+    {%- elif question is of_type("ListQuestion") -%}
+        {%- set hiPrefix = humanId ~ '.[i].' -%}
+        {%- set pathPrefix = path ~ '[ITEM:' ~ question.uuid ~ '].' -%}
+        {%- for xquestion in question.followups -%}
+            {{- processQuestion(xquestion, pathPrefix ~ xquestion.uuid, hiPrefix ~ loop.index) -}}
+        {%- endfor -%}
+    {%- elif question is of_type("FileQuestion") -%}
+        {%- do entity.update({
+            'detail': (question.max_size or -1) ~ ' | ' ~ (question.file_types or '-'),
+        }) -%}
+    {%- elif question is of_type("IntegrationQuestion") -%}
+        {%- do entity.update({
+            'detail': question.integration_uuid,
+        }) -%}
+    {%- elif question is of_type("ItemSelectQuestion") -%}
+        {%- do entity.update({
+            'detail': question.list_question_uuid,
+        }) -%}
+    {%- elif question is of_type("ValueQuestion") -%}
+        {%- do entity.update({
+            'detail': question.value_type,
+        }) -%}
+        {#- TODO: validations? -#}
+    {%- endif -%}
+
+    {%- do entities.append(entity) -%}
+{%- endmacro -%}
+
+{%- macro processChapter(chapter, humanId) -%}
+    {%- do entities.append({
+        'package': dc.pkg.id,
+        'uuid': chapter.uuid,
+        'id': humanId,
+        'type': 'Chapter',
+        'name': chapter.title,
+        'text': chapter.text or '',
+    }) -%}
+
+    {%- set hiPrefix = humanId ~ '.' -%}
+    {%- for question in chapter.questions -%}
+        {{- processQuestion(question, humanId, hiPrefix ~ loop.index) -}}
+    {%- endfor -%}
+{%- endmacro -%}
+
+{%- macro processKnowledgeModel(km) -%}
+    {%- do entities.append({
+        'package': dc.pkg.id,
+        'uuid': km.uuid,
+        'id': dc.pkg.id,
+        'type': 'KnowledgeModel',
+        'name': dc.pkg.name,
+        'text': dc.pkg.description,
+    }) -%}
+
+    {%- for phase in km.phases -%}
+        {{- processPhase(phase) -}}
+    {%- endfor -%}
+    {%- for metric in km.metrics -%}
+        {{- processMetric(metric) -}}
+    {%- endfor -%}
+    {%- for integration in km.integrations -%}
+        {{- processIntegration(integration) -}}
+    {%- endfor -%}
+    {%- for tag in km.tags -%}
+        {{- processQuestionTag(tag) -}}
+    {%- endfor -%}
+    {%- for collection in km.collections -%}
+        {{- processResourceCollection(collection) -}}
+    {%- endfor -%}
+    {%- for chapter in km.chapters -%}
+        {{- processChapter(chapter, loop.index|roman) -}}
+    {%- endfor -%}
+{%- endmacro -%}
+
+{{- processKnowledgeModel(dc.km) -}}

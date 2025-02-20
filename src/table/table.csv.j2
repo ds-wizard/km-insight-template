@@ -1,0 +1,5 @@
+{%- import 'src/table/mapping.j2' as data with context -%}
+UUID,ID,Type,Subtype,Name/Title
+{%- for row in data.entities %}
+{{ row.uuid }},{{ row.id }},{{ row.type }},{{ row.subtype|default('-') }},"{{ row.name|default('-')|tojson }}"
+{%- endfor %}

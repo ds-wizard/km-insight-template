@@ -1,11 +1,11 @@
 {
-  "templateId": "insight-template",
+  "templateId": "km-insight",
   "organizationId": "dsw",
-  "version": "1.2.0",
-  "name": "Insight",
-  "description": "Explore the KM content and answers, if they exist",
+  "version": "1.3.0",
+  "name": "KM Insight",
+  "description": "Explore the KM content and questionnaire",
   "license": "Apache-2.0",
-  "metamodelVersion": 11,
+  "metamodelVersion": 16,
   "recommendedPackageId": null,
   "allowedPackages": [
     {
@@ -18,25 +18,23 @@
   "formats": [
     {
       "uuid": "29be1d14-a338-4aad-ad64-ba245bd6d682",
-      "name": "HTML List",
-      "shortName": "html",
-      "icon": "fas fa-file",
-      "color": "#f15722",
+      "name": "Tree",
+      "icon": "fa-folder-tree",
       "steps": [
         {
           "name": "jinja",
           "options": {
-            "template": "src/html-list/template.html.j2",
+            "template": "src/tree/template.html.j2",
             "content-type": "text/html",
             "extension": "html"
+          }
+        } 
       ]
     },
     {
       "uuid": "95d5c478-7928-4654-9930-70bb0efa83dd",
       "name": "MS Word List",
-      "shortName": "docx",
       "icon": "far fa-file-word",
-      "color": "#0991FF",
       "steps": [
         {
           "name": "jinja",
@@ -56,35 +54,41 @@
       ]
     },
     {
-      "uuid": "55f804ec-b319-4112-ba61-a19109587ed9",
-      "name": "PDF Document",
-      "shortName": "pdf",
-      "icon": "far fa-file-pdf",
-      "color": "#f15a24",
+      "uuid": "fe33c99c-72a3-42da-862b-33f1872c27d0",
+      "name": "Table",
+      "icon": "fa-table",
       "steps": [
         {
           "name": "jinja",
           "options": {
-            "template": "src/pdf/template.html.j2",
+            "template": "src/table/table.html.j2",
             "content-type": "text/html",
             "extension": "html"
           }
-        },
+        }
+      ]
+    },
+    {
+      "uuid": "fe33c99c-72a3-42da-862b-33f1872c27d1",
+      "name": "Table (CSV)",
+      "icon": "fa-table",
+      "steps": [
         {
-          "name": "wkhtmltopdf",
+          "name": "jinja",
           "options": {
-            "args": "--enable-toc-back-links --outline-depth 10"
+            "template": "src/table/table.csv.j2",
+            "content-type": "text/csv",
+            "extension": "csv"
           }
         }
       ]
     }
   ],
   "_tdk": {
-    "version": "3.2.0",
+    "version": "4.15.0",
     "readmeFile": "README.md",
     "files": [
       "src/**/*"
     ]
-  },
-  "createdAt": "2022-04-11T11:22:37Z"
+  }
 }

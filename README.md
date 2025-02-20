@@ -4,20 +4,27 @@ Explore the KM content in many ways, together with answers when present. The tem
 
 ## Changelog
 
+### 1.3.0
+
+- Update to document template metamodel 12
+- Added tables of KM entities
+- Removed PDF format
+- Added full KM mindmap OPML format
+- Added full KM to Word format (with replies)
+
 ### 1.2.0
 
-- metamodel 11
-
+- Update to document template metamodel 11
 
 ### 1.1.0
 
-- metamodel 10
+- Update to document template metamodel 10
 
 ### 1.0.0
 
-- shows in a user-friendly way all questions, together with answers when those are present
-- built from dsw:km-insight
-- metamodel 9
+- Shows in a user-friendly way all questions, together with answers when those are present
+- Built from dsw:km-insight
+- Metamodel 9
 
 ## License
 
